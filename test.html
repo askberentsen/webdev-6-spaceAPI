@@ -6,17 +6,21 @@
 		<title>TEST</title>
 		<script>
 
+		/*I work 50/50 with VS-code and Atom. Indentation is correct in editor, but not necessairily in browser*/
+
 			//https://api.nasa.gov/
 			window.onload = init;
 
-			/*xmlhttp request object for handling multiple XMLHttpRequests*/
-
+			////////////////////////////////////////////////////////////////
+			//xmlhttp request object for handling multiple XMLHttpRequests//
+			////////////////////////////////////////////////////////////////
 			var xhttp = {
+				/*keep track of successful responses*/
 				counter: 0,
 				requestList: [
 					{
 						"type": "some space",
-						"url": "https://api.nasa.gov/planetary/apod?api_key=qnUh09n1kUVj0wWImp7gggzvZWEY4hYu7FLj3MSy"
+						"url": "https://api.nasa.gov/planetary/apood?api_key=qnUh09n1kUVj0wWImp7gggzvZWEY4hYu7FLj3MSy"
 					},
 					{
 						"type": "some other spacestuff",
@@ -26,54 +30,39 @@
 				responses: [],
 				/*send the next request*/
 				send(){
+
 					/*requestList has been processed*/
 					if(this.counter >= this.requestList.length){
-
 						/*handle responses*/
 						handleResponses(this.responses);
-
 						/*take no further action*/
 						return
 					}
-					this.request = sendRequest(this.requestList[ this.counter ].url, ()=>{this.next()}, this.request);
 
+					else {
+						/*send the next request via the sendRequest function.*/
+						/*when request finishes, handle with next(response)  */
+						/*arrow function is used here to avoid typeError. this
+						within function literal refers to function, not object
+						hosting function.*/
+						sendRequest(this.requestList[ this.counter ].url, (response)=>{
+							this.next(response)
+						});
+					}
 				},
-				next(){
+				next(response){
+
 					this.responses.push({
-						type: this.requestList[this.counter].type,
-						content: JSON.parse(this.request.responseText)
+						type: this.requestList[this.counter++].type,
+						content: response
 					});
-					this.counter++;
 					this.send();
 				}
 			}
 
-			function requestFinished(requestObject){
-				if(requestObject.status >= 400){
-					console.log("Error: " + requestObject.status + " " + requestObject.statusText);
-					return false;
-				}
-				return requestObject.status === 200 && requestObject.readyState === 4;
-			}
-
-			function sendRequest(request, handler, requestObject){
-
-				requestObject = new XMLHttpRequest();
-
-				requestObject.onreadystatechange = ()=>{
-
-					if( requestFinished( requestObject ) ){
-						handler( requestObject );
-					}
-
-				};
-
-				requestObject.open("GET", request, true);
-				requestObject.send();
-				return requestObject;
-			}
-
-
+			///////////////////////////////
+			//Initialize requests and DOM//
+			///////////////////////////////
 			function init(){
 
 				// sendRequest("webRequests.JSON", (response)=>{
@@ -86,6 +75,48 @@
 			function handleResponses(responses){
 				console.log(responses);
 			}
+
+			function requestFinished(requestObject){
+
+				/*Finished request*/
+				if(requestObject.readyState === 4){
+
+					/*Valid request*/
+					if(requestObject.status === 200){ return true }
+
+					/*invalid request*/
+					return null;
+				}
+
+				/*request not finished*/
+				return false;
+			}
+
+			function sendRequest(request, handle){
+
+				let  requestObject = new XMLHttpRequest();
+
+				requestObject.onreadystatechange = ()=>{
+
+					let status = requestFinished( requestObject );
+
+					/*valid and finished response. handle response*/
+					if( status === true){
+						handle( JSON.parse(requestObject.responseText) );
+					}
+					/*invalid and finished response, handle null*/
+					else if (status === null) {
+						handle(null);
+					}
+
+				}
+
+				/*send request*/
+				requestObject.open("GET", request, true);
+				requestObject.send();
+			}
+
+
 
 
 		</script>
