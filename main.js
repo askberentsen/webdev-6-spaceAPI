@@ -9,7 +9,6 @@ window.onload = init;
 //////////////////////////////////////////////////////////////////
 class RequestResponseHandler{
 
-        var object = new RequestResponseHandler( requestObject, function(response,index), function(responses));
     constructor(requests, responseHandler, completionHandler){
 
         validateArguements(requests, responseHandler, completionHandler);
