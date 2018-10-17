@@ -108,12 +108,25 @@ function sendRequest( request, handle, index ){
 //////////////////////////////////////////////////////////////////
 var xhttp;
 
-function init(){
+async function init(){
 
-    sendRequest( "webRequests.json", jsonRequestList => {
-        xhttp = new RequestResponseHandler( jsonRequestList, handleResponse, handleAllResponses );
-        xhttp.sendRequestList();
+    var articles = await new Promise( resolve => {
+        /*Await until all responses have been handled*/
+        
+        sendRequest( "webRequests.json", jsonRequestList => {
+            /*Request a requestlist from "webrequests.json"*/
+
+            xhttp = new RequestResponseHandler( jsonRequestList, handleResponse, resolve );
+            /*Send in requestlist, handleResponse and resolve to constructor*/
+            /*On completion of all requests, resolve promise with an array of all responses*/
+
+            xhttp.sendRequestList();
+            /*Send all requests*/
+        });
     });
+
+    console.log(articles);
+
 }
 
 //////////////////////////////////////////////////////////////////
