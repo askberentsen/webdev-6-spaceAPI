@@ -3,21 +3,11 @@
     /* functions getContent and getUrl from https://davidwalsh.name/php-cache-function */
     function get_content($file,$url,$hours = 24,$fn = '') {
 
-        $file = "cache/" . $file;
-        //vars
-        $current_time = time(); 
-        $expire_time = $hours * 60 * 60; 
-        $file_time = filemtime($file);
-
-        //decisions, decisions
-        if( file_exists( $file ) && ($current_time - $expire_time < $file_time) ) {
-            return file_get_contents( $file );
+        if( fromCache( $file ) && expired( $file ) ) {
+            return file_get_contents( fromCache( $file ) );
         }
         else {
-            $content = get_url( $url );
-            if($fn) { $content = $fn( $content ); }
-            file_put_contents( $file , $content);
-            return $content;
+            return toCache( $url, $file );
         }
     }
     function get_url( $url ) {
@@ -43,6 +33,25 @@
         } else {
             return $response;
         }
+    }
+    function toCache( $url, $file, $path = ""){
+        $content = get_url( $url );
+        file_put_contents( "cache/" . $path . "/" . $file, $content);
+        return $content;
+    }
+    function fromCache( $file, $path = ""){
+        $cache = "cache/" . $path . "/" . $file;
+        return file_exists( $cache ) ? $cache : false;
+    }
+
+    function expired( $file, $hours = 24, $path = "" ){
+        
+        $now = time();
+        $lastCached = filemtime( fromCache($file, $path) );
+        $expirationTime = $hours * 60 * 60;
+        $freshness = $now - $lastCached;
+
+        return $freshness < $expirationTime;
     }
 
     
