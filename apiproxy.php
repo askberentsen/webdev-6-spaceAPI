@@ -1,9 +1,9 @@
 <?php
 
     /* functions getContent and getUrl from https://davidwalsh.name/php-cache-function */
-    function get_content($file,$url,$hours = 24,$fn = '') {
+    function get_content( $file, $url, $speed_of_rot = 24) {
 
-        if( fromCache( $file ) && expired( $file ) ) {
+        if( fromCache( $file ) && expired( $file, $speed_of_rot ) ) {
             return file_get_contents( fromCache( $file ) );
         }
         else {
@@ -44,11 +44,11 @@
         return file_exists( $cache ) ? $cache : false;
     }
 
-    function expired( $file, $hours = 24, $path = "" ){
+    function expired( $file, $speed_of_rot = 24, $path = "" ){
         
         $now = time();
         $lastCached = filemtime( fromCache($file, $path) );
-        $expirationTime = $hours * 60 * 60;
+        $expirationTime = $speed_of_rot * 60 * 60;
         $freshness = $now - $lastCached;
 
         return $freshness < $expirationTime;
