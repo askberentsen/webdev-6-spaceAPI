@@ -20,10 +20,10 @@
         while( $line = fgets( $file ) ){
             $response .= $line;
         }
-        array_push($responses, $response);
+
+        $item = array( "info"=> $request->info , "url"=> $request->url, "content"=> $response);
+
+        array_push($responses, $item );
     }
-
-    $json = json_decode( implode( ",", $responses) );
-
-    echo( "[" . implode( ",", $responses) . "]" );
+    echo json_encode($responses);
 ?>
