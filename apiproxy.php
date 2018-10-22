@@ -43,8 +43,8 @@
         return $content;
     }
     function fromCache( $file, $path = ""){
-        $cache = "cache/" . $path . "/" . $file;
-        return file_exists( $cache ) ? $cache : false;
+        $cache = "cache/" . ($path ? $path . "/" : "" ) . $file;
+        return $file && file_exists( $cache ) ? $cache : false;
     }
 
     function expired( $file, $speed_of_rot = 24, $path = "" ){
