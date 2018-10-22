@@ -3,11 +3,19 @@
 //https://api.nasa.gov/
 window.onload = init;
 
-function apiProxy( url, direct = true ){
-
-    let option = direct ? "direct" : "meta";
+function apiProxy( url, direct = true, cache = false, info = false ){
     
-    return fetch("apiproxy.php?" + option + "=" + url ).then( r => r.json() );
+    let request = "apiproxy.php?";
+    
+    request += direct ? "direct=" : "meta=";
+
+    request += url;
+
+    request += cache ? "&cache=" + cache : "";
+    
+    request += info ? "&info=" + info : "";
+
+    return fetch( request ).then( r => r.json() );
 }
 
 //////////////////////////////////////////////////////////////////
@@ -15,7 +23,7 @@ function apiProxy( url, direct = true ){
 //////////////////////////////////////////////////////////////////
 async function init(){
 
-    var articles = await apiProxy("webRequests.json", false);
+    var articles = await apiProxy("webRequests.json", false );
     console.log( articles );
 
 }
