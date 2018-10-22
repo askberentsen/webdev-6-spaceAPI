@@ -1,18 +1,33 @@
 <?php
 
-    /* functions getContent and getUrl from https://davidwalsh.name/php-cache-function */
+    /* functions getContent and getUrl based off of https://davidwalsh.name/php-cache-function */
+   
+    /* Get contents of a request either from cache or via curl */
     function get_content( $url, $file = "", $speed_of_rot = 24) {
 
+        /* Check if file argument has been given */
+        /* Check if file is in cache             */
+        /* Check if file has gone stale          */
         if( $file && fromCache( $file ) && fresh( $file, $speed_of_rot ) ) {
+
+            /* return contents directly from cache */
             return file_get_contents( fromCache( $file ) );
         }
+
+        /* Else if file argument has been given */
         else if ( $file ) {
+
+            /* Get url with curl, cache and return response */
             return toCache( $url, $file );
         }
         else{
+
+            /* Only return response */
             return get_url( $url );
         }
     }
+
+    /* Get content from curl */
     function get_url( $url ) {
 
         $curl = curl_init();
@@ -37,16 +52,21 @@
             return $response;
         }
     }
+
+    /* Get url, cache and return contents */
     function toCache( $url, $file, $path = ""){
         $content = get_url( $url );
         file_put_contents( "cache/" . $path . "/" . $file, $content);
         return $content;
     }
+
+    /* Check if file is in cache, return cached location */
     function fromCache( $file, $path = ""){
         $cache = "cache/" . ($path ? $path . "/" : "" ) . $file;
         return $file && file_exists( $cache ) ? $cache : false;
     }
 
+    /* Check if file has gone stale */
     function fresh( $file, $speed_of_rot = 24, $path = "" ){
         
         $now = time();
@@ -57,6 +77,7 @@
         return $freshness < $expirationTime;
     }
 
+    /* get content, decode and return response */
     function parse_curl($url, $cache, $info){
 
         $raw = get_content( $url, $cache );
@@ -66,24 +87,36 @@
         return array( "info"=>$info, "content"=> $response );
     }
 
-    
+    ////////////////////////////////////////////
+    //                MAIN                    //
+    ////////////////////////////////////////////
+
+    /* Get arguments */
     $meta_request = $_GET["meta"];
     $direct_request = $_GET["direct"];
 
     $cache_response = $_GET["cache"];
     $info_response = $_GET["info"];
 
+    /* Declare response(s) */
     $responses;
 
+    /* If request is direct, get data directly from url */
     if ( $direct_request ){
         $responses = parse_curl( $direct_request, $cache_response, $info_response );
     }
+
+    /* Else the request is via a meta request. Open file and request further */
     else {
+
+        /* Initialize responses as array */
         $responses = array();
+
+        /* Open meta request and parse */
         $rl_file = file_get_contents( $meta_request );
         $request_list = json_decode($rl_file);
 
-
+        /* Iterate over request list and request sequentially */
         foreach( $request_list as $request ){
 
             $item = parse_curl( $request->url, $request->cache, $request->info);
@@ -93,6 +126,7 @@
         }
     }
 
+    /* Return all responses */
     echo json_encode( $responses );
 
 ?>
