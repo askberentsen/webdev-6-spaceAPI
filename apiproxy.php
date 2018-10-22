@@ -3,18 +3,20 @@
     /* functions getContent and getUrl from https://davidwalsh.name/php-cache-function */
     function get_content($file,$url,$hours = 24,$fn = '') {
 
+        $file = "cache/" . $file;
         //vars
         $current_time = time(); 
         $expire_time = $hours * 60 * 60; 
         $file_time = filemtime($file);
+
         //decisions, decisions
-        if( file_exists( "cache/" . $file ) && ($current_time - $expire_time < $file_time) ) {
-            return file_get_contents($file);
+        if( file_exists( $file ) && ($current_time - $expire_time < $file_time) ) {
+            return file_get_contents( $file );
         }
         else {
             $content = get_url( $url );
             if($fn) { $content = $fn( $content ); }
-            file_put_contents( "cache/" . $file , $content);
+            file_put_contents( $file , $content);
             return $content;
         }
     }
@@ -44,8 +46,8 @@
     }
 
     
-
-    $rl_file = file_get_contents("webRequests.json");
+    $meta_request = $_GET["request"];
+    $rl_file = file_get_contents( $meta_request );
     $request_list = json_decode($rl_file);
 
     $responses = array();

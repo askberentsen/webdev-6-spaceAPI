@@ -8,7 +8,7 @@ window.onload = init;
 //////////////////////////////////////////////////////////////////
 async function init(){
 
-    var articles = await fetch( "apiproxy.php" )
+    var articles = await fetch( "apiproxy.php?request=webRequests.json" )
     .then( response => response.json() )
     console.log( articles );
 
