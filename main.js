@@ -21,11 +21,23 @@ class RequestResponseHandler{
     }
 
     sendRequestList(){
-        /* Iterate over requestList[i], and send asynchronous requests */
-        for( let i = 0; i < this.requestList.length; ++i ){
-            /* send request from requestList[]. When server responds, assign response to responses[] */
-            sendRequest( this.requestList[i].url, response => { this.receive( response, i ) }, i );
+
+        let requests = [];
+
+        for( let i = 0; i < this.requestList.length; ++i){
+            requests.push( new Promise( resolve => {
+                sendRequest( this.requestList[i].url, resolve);
+            } ) )
         }
+
+        return Promise.all(requests);
+
+
+        /* Iterate over requestList[i], and send asynchronous requests */
+        // for( let i = 0; i < this.requestList.length; ++i ){
+        //     /* send request from requestList[]. When server responds, assign response to responses[] */
+        //     sendRequest( this.requestList[i].url, response => { this.receive( response, i ) }, i );
+        // }
     }
 
     receive( response, index ){
@@ -106,24 +118,30 @@ function sendRequest( request, handle, index ){
 //////////////////////////////////////////////////////////////////
 //					Initialize requests and DOM					//
 //////////////////////////////////////////////////////////////////
-var xhttp;
-
 async function init(){
 
-    var articles = await new Promise( resolve => {
-        /*Await until all responses have been handled*/
-        
-        sendRequest( "webRequests.json", jsonRequestList => {
-            /*Request a requestlist from "webrequests.json"*/
-
-            xhttp = new RequestResponseHandler( jsonRequestList, handleResponse, resolve );
-            /*Send in requestlist, handleResponse and resolve to constructor*/
-            /*On completion of all requests, resolve promise with an array of all responses*/
-
-            xhttp.sendRequestList();
-            /*Send all requests*/
-        });
+    var articles = await fetch( "webRequests.json" )
+    .then( response => response.json() )
+    .then( response => {
+        let xhttp = new RequestResponseHandler( response, handleResponse, handleAllResponses );
+        return xhttp.sendRequestList();
     });
+    console.log( articles );
+
+    // var articles = await new Promise( resolve => {
+    //     /*Await until all responses have been handled*/
+        
+    //     sendRequest( "webRequests.json", jsonRequestList => {
+    //         /*Request a requestlist from "webrequests.json"*/
+
+    //         xhttp = new RequestResponseHandler( jsonRequestList, handleResponse, resolve );
+    //         /*Send in requestlist, handleResponse and resolve to constructor*/
+    //         /*On completion of all requests, resolve promise with an array of all responses*/
+
+    //         xhttp.sendRequestList();
+    //         /*Send all requests*/
+    //     });
+    // });
 
     console.log(articles);
 
