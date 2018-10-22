@@ -3,7 +3,7 @@
     /* functions getContent and getUrl from https://davidwalsh.name/php-cache-function */
     function get_content( $url, $file = "", $speed_of_rot = 24) {
 
-        if( $file && fromCache( $file ) && expired( $file, $speed_of_rot ) ) {
+        if( $file && fromCache( $file ) && fresh( $file, $speed_of_rot ) ) {
             return file_get_contents( fromCache( $file ) );
         }
         else if ( $file ) {
@@ -47,7 +47,7 @@
         return $file && file_exists( $cache ) ? $cache : false;
     }
 
-    function expired( $file, $speed_of_rot = 24, $path = "" ){
+    function fresh( $file, $speed_of_rot = 24, $path = "" ){
         
         $now = time();
         $lastCached = filemtime( fromCache($file, $path) );
