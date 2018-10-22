@@ -120,12 +120,8 @@ function sendRequest( request, handle, index ){
 //////////////////////////////////////////////////////////////////
 async function init(){
 
-    var articles = await fetch( "webRequests.json" )
+    var articles = await fetch( "apiproxy.php" )
     .then( response => response.json() )
-    .then( response => {
-        let xhttp = new RequestResponseHandler( response, handleResponse, handleAllResponses );
-        return xhttp.sendRequestList();
-    });
     console.log( articles );
 
     // var articles = await new Promise( resolve => {

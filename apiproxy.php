@@ -9,26 +9,21 @@
     }
     $requests = json_decode( $content );
 
-    echo "[";
+    $responses = array();
 
     foreach ( $requests as $request ){
         $url = $request->url;
         $file = fopen($url, "r");
 
+        $response = "";
+
         while( $line = fgets( $file ) ){
-            echo $line;
+            $response .= $line;
         }
-
+        array_push($responses, $response);
     }
 
-    $req = $requests[0]->url;
+    $json = json_decode( implode( ",", $responses) );
 
-    $file = fopen($req, "r");
-
-    while( $line = fgets( $file )){
-        echo $line;
-    }
-
-    echo "]";
-
+    echo( "[" . implode( ",", $responses) . "]" );
 ?>
