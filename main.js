@@ -7,9 +7,7 @@ function apiProxy( url, direct = true, cache = false, info = false ){
     
     let request = "apiproxy.php?";
     
-    request += direct ? "direct=" : "meta=";
-
-    request += url;
+    request += (direct ? "direct=" : "meta=") + url;
 
     request += cache ? "&cache=" + cache : "";
     

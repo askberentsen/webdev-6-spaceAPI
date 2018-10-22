@@ -8,7 +8,7 @@
         /* Check if file argument has been given */
         /* Check if file is in cache             */
         /* Check if file has gone stale          */
-        if( $file && fromCache( $file ) && fresh( $file, $speed_of_rot ) ) {
+        if( fromCache( $file ) && fresh( $file, $speed_of_rot ) ) {
 
             /* return contents directly from cache */
             return file_get_contents( fromCache( $file ) );
