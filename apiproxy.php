@@ -1,13 +1,16 @@
 <?php
 
     /* functions getContent and getUrl from https://davidwalsh.name/php-cache-function */
-    function get_content( $file, $url, $speed_of_rot = 24) {
+    function get_content( $url, $file = "", $speed_of_rot = 24) {
 
-        if( fromCache( $file ) && expired( $file, $speed_of_rot ) ) {
+        if( $file && fromCache( $file ) && expired( $file, $speed_of_rot ) ) {
             return file_get_contents( fromCache( $file ) );
         }
-        else {
+        else if ( $file ) {
             return toCache( $url, $file );
+        }
+        else{
+            return get_url( $url );
         }
     }
     function get_url( $url ) {
@@ -15,12 +18,12 @@
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_CUSTOMREQUEST => "GET",
         ));
 
         $response = curl_exec( $curl );
@@ -54,23 +57,40 @@
         return $freshness < $expirationTime;
     }
 
-    
-    $meta_request = $_GET["request"];
-    $rl_file = file_get_contents( $meta_request );
-    $request_list = json_decode($rl_file);
+    function parse_curl($url, $cache, $info){
 
-    $responses = array();
-
-    foreach( $request_list as $request ){
-
-        $raw = get_content( $request->cache, $request->url );
+        $raw = get_content( $url, $cache );
 
         $response = json_decode( $raw );
 
-        $item = array( "info"=>$request->info, "url"=> $request->url, "content"=> $response );
+        return array( "info"=>$info, "content"=> $response );
+    }
 
-        array_push($responses, $item);
-        
+    
+    $meta_request = $_GET["meta"];
+    $direct_request = $_GET["direct"];
+
+    $cache_response = $_GET["cache"];
+    $info_response = $_GET["info"];
+
+    $responses;
+
+    if ( $direct_request ){
+        $responses = parse_curl( $direct_request, $cache_response, $info_response );
+    }
+    else {
+        $responses = array();
+        $rl_file = file_get_contents( $meta_request );
+        $request_list = json_decode($rl_file);
+
+
+        foreach( $request_list as $request ){
+
+            $item = parse_curl( $request->url, $request->cache, $request->info);
+
+            array_push($responses, $item);
+            
+        }
     }
 
     echo json_encode( $responses );
