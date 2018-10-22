@@ -4,6 +4,7 @@
 			"domain":"NASA",
 			"type": "normal"
 		},
+		"cache": "nasa_apod.dat",
 		"url": "https://api.nasa.gov/planetary/apod?api_key=qnUh09n1kUVj0wWImp7gggzvZWEY4hYu7FLj3MSy"
 	},
 	{
@@ -11,6 +12,7 @@
 			"domain": "NASA",
 			"type": "normal"
 		},
+		"cache": "nasa_planetary.dat",
 		"url": "https://api.nasa.gov/planetary/earth/imagery/?lon=100.75&lat=1.5&date=2014-02-01&cloud_score=True&api_key=qnUh09n1kUVj0wWImp7gggzvZWEY4hYu7FLj3MSy"
 	},
 	{
@@ -18,6 +20,7 @@
 			"domain": "SpaceX",
 			"type":"normal"
 		},
+		"cache": "spacex_launches_latest.dat",
 		"url": "https://api.spacexdata.com/v3/launches/latest"
 	},
 	{
@@ -25,13 +28,7 @@
 			"domain": "SpaceX",
 			"type": "latest"
 		},
-		"url": "https://api.spacexdata.com/v3/history"
-	},
-	{
-		"info": {
-			"domain": "SpaceX",
-			"type": "library"
-		},
+		"cache": "spacex_history_latest.dat",
 		"url": "https://api.spacexdata.com/v3/history"
 	}
 ]
