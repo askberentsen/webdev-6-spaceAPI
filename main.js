@@ -19,33 +19,41 @@ function apiProxy( url, direct = true, cache = false, info = false ){
 //////////////////////////////////////////////////////////////////
 //					Initialize requests and DOM					//
 //////////////////////////////////////////////////////////////////
+var articles;
+
 async function init(){
 
-    var articles = await apiProxy("webRequests.json", false );
+    articles = await apiProxy("webRequests.json", false );
     console.log( articles );
 
+
+    main( articles );
+
 }
 
-//////////////////////////////////////////////////////////////////
-//		  Requests have been received. Handle apropriatly 		//
-//////////////////////////////////////////////////////////////////
-function handleResponse( response, index ){
+function main( jsonArray ){
 
-    if ( response.content.error !== undefined ){
-        /*Error handling*/
-    }
-    else if ( response.info.type === "latest" ){
-        /*Get latest entry*/
-        response.content = response.content[ response.content.length - 1 ];
-    }
-    else if ( response.info.type === "library"){
-        /*Get library*/
+    var main = document.getElementsByTagName("MAIN")[0];
+
+    for( var i = 0; i < jsonArray.length; ++i ){
+
+        writeArticle( main, jsonArray[i] );
+
     }
 
-    console.log( "article #" + index );
-    console.info( response );
 }
 
-function handleAllResponses( response ){
-    console.info( "Finished loading " + response.length + " resources!" );
+function writeArticle( location, json ){
+
+    var article = document.createElement("article");
+
+    var header = document.createElement("header");
+
+    header.innerHTML = json.info.domain;
+
+    article.appendChild( header );
+
+
+    location.appendChild( article );
+
 }
