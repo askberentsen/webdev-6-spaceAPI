@@ -23,12 +23,37 @@ var articles;
 
 async function init(){
 
-    articles = await apiProxy("webRequests.json", false );
-    console.log( articles );
+    var request = apiProxy("webRequests.json", false );
 
+    var articles = await loadingBar( request );
+
+    console.log( articles );
 
     main( articles );
 
+}
+
+async function loadingBar( promise ){
+
+    var bar = document.getElementById("loading_animation");
+    var animation = setInterval( ()=>{
+
+        switch( bar.innerHTML ){
+            case ".": 
+                bar.innerHTML = ".."; 
+                break;
+            case "..": 
+                bar.innerHTML = "..."; 
+                break;
+            default: 
+                bar.innerHTML = "."; 
+                break;
+        }
+    }, 300)
+    var done = await promise;
+    clearInterval( animation );
+    document.getElementById("loading").outerHTML = "";
+    return done;
 }
 
 function main( jsonArray ){
