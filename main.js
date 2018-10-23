@@ -25,6 +25,10 @@ async function init(){
 
     var request = apiProxy("webRequests.json", false );
 
+    // var loadTest = new Promise(resolve=>{
+    //     setTimeout(resolve,3000);
+    // })
+
     var articles = await loadingBar( request );
 
     console.log( articles );
