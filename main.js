@@ -33,9 +33,12 @@ async function init(){
 
 }
 
-async function loadingBar( promise ){
+function loadingBar( promise ){
 
+    /*  Get loading bar  */
     var bar = document.getElementById("loading_animation");
+
+    /*  Animate loading bar  */
     var animation = setInterval( ()=>{
 
         switch( bar.innerHTML ){
@@ -49,11 +52,17 @@ async function loadingBar( promise ){
                 bar.innerHTML = "."; 
                 break;
         }
-    }, 300)
-    var done = await promise;
-    clearInterval( animation );
-    document.getElementById("loading").outerHTML = "";
-    return done;
+    }, 300);
+
+    /* return promise, and when promise is resolved, clear animation */
+    return promise.then( result => {
+
+        clearInterval( animation );
+        document.getElementById("loading").outerHTML = "";
+
+        return result;
+
+    });
 }
 
 function main( jsonArray ){
