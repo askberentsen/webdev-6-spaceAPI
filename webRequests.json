@@ -9,11 +9,19 @@
 	},
 	{
 		"info": {
-			"domain": "NASA",
+			"domain": "SpaceX",
+			"type": "latest"
+		},
+		"cache": "spacex_ships_latest.dat",
+		"url": "https://api.spacexdata.com/v3/ships"
+	},
+	{
+		"info": {
+			"domain": "SpaceX",
 			"type": "normal"
 		},
-		"cache": "nasa_planetary.dat",
-		"url": "https://api.nasa.gov/planetary/earth/imagery/?lon=100.75&lat=1.5&date=2014-02-01&cloud_score=True&api_key=qnUh09n1kUVj0wWImp7gggzvZWEY4hYu7FLj3MSy"
+		"cache": "roadster.dat",
+		"url": "https://api.spacexdata.com/v3/roadster"
 	},
 	{
 		"info": {
