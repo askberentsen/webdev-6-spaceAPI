@@ -3,27 +3,24 @@
 //https://api.nasa.gov/
 window.onload = init;
 
-function apiProxy( url ){
-    var proxy = {};
-    proxy.url = url;
-    proxy.direct = true;
-    proxy.cache = false;
-    proxy.info = false;
-    proxy.freshness = 24;
-    proxy.get = function(){
+class apiProxy{
+    constructor( url ){
+        this.url = url;
+        this.direct = true;
+        this.cache = false;
+        this.info = false;
+        this.freshness = 24;
+    }
+    get fetch() {
         var form = "apiproxy.php?";
 
-        form += (proxy.direct ? "direct=" : "meta=") + proxy.url;
-        form += proxy.cache ? "&cache=" + proxy.cache : "";
-        form += proxy.info ? "&info=" + proxy.info : "";
-        form += proxy.freshness ? "&freshness=" + proxy.freshness : "";
+        form += (this.direct ? "direct=" : "meta=") + this.url;
+        form += this.cache ? "&cache=" + this.cache : "";
+        form += this.info ? "&info=" + this.info : "";
+        form += this.freshness ? "&freshness=" + this.freshness : "";
 
-        return fetch( form ).then( r => {
-            console.log(r);
-            return r.json() 
-        });
+        return fetch( form ).then( r => r.json() );
     }
-    return proxy;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -33,16 +30,14 @@ var articles;
 
 async function init(){
 
-    var proxy = apiProxy( "webRequests.json" );
+    var proxy = new apiProxy( "webRequests.json" );
     proxy.direct = false;
-
-    var request = proxy.get();
 
     // var loadTest = new Promise(resolve=>{
     //     setTimeout(resolve,3000);
     // })
 
-    var articles = await loadingBar( request );
+    var articles = await loadingBar( proxy.fetch );
 
     console.log( articles );
 
