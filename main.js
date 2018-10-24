@@ -168,24 +168,13 @@ function jMedia( article, json ){
     /*  Check if json contains several images */
     if( imageArray ){
 
-        /*  instantiate image wrapper  */
-        media = document.createElement("figure");
-
-        /*  for each image in array, append to wrapper */
-        for( var i = 0; i < imageArray.length; ++i ){
-            image = document.createElement("img");
-            image.src = imageArray[i];
-            image.alt = "";
-            media.appendChild( image );
-        }
+        media = addImages("", ...imageArray);
 
     }
     /*  Check if a single image was found instead */
     else if ( json.content.media_type === "image" || json.content.image ){
 
-        media = document.createElement("img");
-        media.src = image;
-        media.alt = "";
+        media = addImages( "", image );
 
     }
 
@@ -215,10 +204,18 @@ function timeDifference( from, to = Date.now() ){
 }
 
 function initializeTime( json, timeStamp ){
+    var date = new Date( timeStamp );
+
+    /* Spaghetti date extracter :^) */
+    var relevantTime = String( date.getDate() ).padStart(2,0) 
+        + "/" + String( date.getMonth() ).padStart(2,0) 
+        + "/" + date.getFullYear();
+
+
     return (
-        json.content.launch_date_utc ? "Launched: " + timeStamp : undefined ) ||
-        json.content.year_built ? "Built in " + timeStamp : undefined ||
-        "Date: " + timeStamp;
+        json.content.launch_date_utc ? "Launched: " + relevantTime : undefined ) ||
+        (json.content.year_built ? "Built in " + date.getFullYear() : undefined) ||
+        "Date: " + relevantTime;
 }
 
 
@@ -251,18 +248,28 @@ function timeUpdater( json, timeStamp, timeObject ){
         timeObject.innerHTML = initializeTime( json, timeStamp );
     }
 
+}
+
 function addImages( caption, ...images ){
     var figure = document.createElement("figure");
 
     for( var i = 0; i < images.length; ++i ){
+
         var image = document.createElement("img");
         image.src = images[i];
         image.alt = "";
+
         figure.appendChild( image );
     }
 
-    var figCaption = document.createElement("figcaption");
-    figCaption.innerHTML = caption;
+    if ( caption !== "" || caption !== undefined ){
 
-    return figure.appendChild(figCaption);
+        var figCaption = document.createElement("figcaption");
+        figCaption.innerHTML = caption;
+    
+        figure.appendChild(figCaption);
+
+    }
+
+    return figure;
 }
