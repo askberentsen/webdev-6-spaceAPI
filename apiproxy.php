@@ -10,7 +10,6 @@
         /* Check if file is in cache             */
         /* Check if file has gone stale          */
         if( $file && fresh( $file, $speed_of_rot ) ) {
-            echo "/* Fetched from cache */";
             /* return contents directly from cache */
             return file_get_contents( $file );
         }
@@ -18,13 +17,11 @@
         /* Else if file argument has been given */
         else if ( $cache === true ) {
             /* Get url with curl, cache and return response */
-            echo "/* Fetched from url, saved to cache */";
             return toCache( $url );
         }
         else{
 
             /* Only return response */
-            echo "/* Fetched from url */";
             return get_url( $url );
         }
     }
@@ -94,40 +91,14 @@
     ////////////////////////////////////////////
 
     /* Get arguments */
-    $meta_request = $_GET["meta"];
-    $direct_request = $_GET["direct"];
+    $direct_url = $_GET["url"];
 
     $cache_response = boolval($_GET["cache"]);
     $info_response = json_decode($_GET["info"]);
     $freshness_response = $_GET["freshness"];
 
-    /* Declare response(s) */
-    $responses;
-
-    /* If request is direct, get data directly from url */
-    if ( $direct_request ){
-        $responses = parse_curl( $direct_request, $cache_response, $info_response, $freshness_response );
-    }
-
-    /* Else the request is via a meta request. Open file and request further */
-    else {
-
-        /* Initialize responses as array */
-        $responses = array();
-
-        /* Open meta request and parse */
-        $rl_file = file_get_contents( $meta_request );
-        $request_list = json_decode($rl_file);
-
-        /* Iterate over request list and request sequentially */
-        foreach( $request_list as $request ){
-
-            $item = parse_curl( $request->url, $request->cache, $request->info, $freshness_response );
-
-            array_push($responses, $item);
-            
-        }
-    }
+    $responses = parse_curl( $direct_url, $cache_response, $info_response, $freshness_response );
+    
 
     /* Return all responses */
     echo json_encode( $responses );
