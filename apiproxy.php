@@ -78,9 +78,9 @@
     }
 
     /* get content, decode and return response */
-    function parse_curl($url, $cache, $info){
+    function parse_curl($url, $cache, $info, $freshness){
 
-        $raw = get_content( $url, $cache );
+        $raw = get_content( $url, $cache, $freshness );
 
         $response = json_decode( $raw );
 
@@ -97,13 +97,14 @@
 
     $cache_response = $_GET["cache"];
     $info_response = $_GET["info"];
+    $freshness_response = $_GET["freshness"];
 
     /* Declare response(s) */
     $responses;
 
     /* If request is direct, get data directly from url */
     if ( $direct_request ){
-        $responses = parse_curl( $direct_request, $cache_response, $info_response );
+        $responses = parse_curl( $direct_request, $cache_response, $info_response, $freshness_response );
     }
 
     /* Else the request is via a meta request. Open file and request further */
@@ -119,7 +120,7 @@
         /* Iterate over request list and request sequentially */
         foreach( $request_list as $request ){
 
-            $item = parse_curl( $request->url, $request->cache, $request->info);
+            $item = parse_curl( $request->url, $request->cache, $request->info, $freshness_response );
 
             array_push($responses, $item);
             

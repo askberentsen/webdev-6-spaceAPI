@@ -32,6 +32,7 @@ async function init(){
 
     var proxy = new apiProxy( "webRequests.json" );
     proxy.direct = false;
+    proxy.freshness = 24;
 
     // var loadTest = new Promise(resolve=>{
     //     setTimeout(resolve,3000);
