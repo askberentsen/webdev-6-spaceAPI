@@ -16,7 +16,7 @@ class apiProxy{
 
         form += (this.direct ? "direct=" : "meta=") + this.url;
         form += this.cache ? "&cache=" + this.cache : "";
-        form += this.info ? "&info=" + this.info : "";
+        form += this.info ? "&info=" + JSON.stringify(this.info) : "";
         form += this.freshness ? "&freshness=" + this.freshness : "";
 
         return fetch( form ).then( r => r.json() );

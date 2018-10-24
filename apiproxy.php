@@ -96,7 +96,7 @@
     $direct_request = $_GET["direct"];
 
     $cache_response = $_GET["cache"];
-    $info_response = $_GET["info"];
+    $info_response = json_decode($_GET["info"]);
     $freshness_response = $_GET["freshness"];
 
     /* Declare response(s) */
