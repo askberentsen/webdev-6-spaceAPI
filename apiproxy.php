@@ -55,13 +55,26 @@
     /* Get url, cache and return contents */
     function toCache( $url ){
         $content = get_url( $url );
-        file_put_contents( "cache/" . md5( $url ) . ".dat", $content);
+
+        /* Don't cache errors */
+        if( strpos( $content, "cURL Error #:" ) === false ){
+            file_put_contents( "cache/" . md5( $url ) . ".dat", $content);
+        }
         return $content;
     }
 
     /* Check if file is in cache, return cached location */
     function fromCache( $url ){
+
+        /* If url is in the system, return that instead of the hashed filename */
+        if ( file_exists( $url )){
+            return $url;
+        }
+
+        /* Define cache as a hash */
         $cache = "cache/" . md5( $url ) . ".dat";
+
+        /* If cache exists, return cache, otherwise return nothing */
         return file_exists( $cache ) ? $cache : false;
     }
 
@@ -83,7 +96,11 @@
 
         $response = json_decode( $raw );
 
-        return array( "info"=>$info, "content"=> $response );
+        if ( $info ){
+            return array( "info"=>$info, "content"=> $response );
+        }
+        return $response;
+
     }
 
     ////////////////////////////////////////////
