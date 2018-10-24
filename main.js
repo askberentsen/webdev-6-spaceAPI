@@ -9,10 +9,15 @@ class ApiProxy {
         this.cache = arg.cache || false;
         this.info = arg.info || false;
         this.freshness = arg.freshness || 24;
+        return this;
     }
     /* Get json from apiproxy */
     fetchJSON() {
         return fetch( this.form ).then( r => r.json() );
+    }
+    static fetchJSON( arg ){
+        let request = new ApiProxy( arg );
+        return request.fetchJSON();
     }
     /* Generate form for apiproxy to handle */
     get form(){
@@ -26,6 +31,7 @@ class ApiProxy {
 class ApiProxyArray {
     constructor ( requestArray ){
         this.requestList = requestArray;
+        return this;
     }
     all( progressionCallback = ()=>{}, modifier = r => r ){
 
@@ -56,18 +62,15 @@ var articles;
 async function init(){
 
     /* Fetch the requests from json */
-    var requestList = await fetch("webRequests.json").then( r => r.json() );
+    var proxies = await fetch("webRequests.json")
+        .then( response => response.json() )
+        .then( response => { return new ApiProxyArray( response ) } );
 
-    var proxies = new ApiProxy( requestList );
-    var promises = proxies.all( load ).then( finish );
+    /* The following code also works, but the native fetch function is faster */
+    // var proxies = await ApiProxy("webRequests.json")
+    //     .then( response => { return new ApiProxyArray( response ) } );
 
-    /*  Request all. Update loadingbar on response, and
-        remove loading bar upon all complete responses  */
-
-    /* wait for all requests to be completed */
-    var articles = await promises;
-
-    //var articles = await loadingBar( proxy.fetchJSON() );
+    articles = await proxies.all( load ).then( finish );
 
     console.log( articles );
 
