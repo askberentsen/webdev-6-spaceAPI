@@ -162,10 +162,8 @@ function jMedia( article, json ){
     var media;
     
     /*  Extract image url(s) from json file where expected */
-    var image = json.content.image || json.content.hdurl || json.content.url;
+    var image = json.content.image || json.content.url || json.content.hdurl;
     var imageArray = json.content.flickr_images || (json.content.links ? json.content.links.flickr_images : undefined );
-
-    var type = json.content.media_type;
 
     /*  Check if json contains several images */
     if( imageArray ){
@@ -177,15 +175,17 @@ function jMedia( article, json ){
         for( var i = 0; i < imageArray.length; ++i ){
             image = document.createElement("img");
             image.src = imageArray[i];
+            image.alt = "";
             media.appendChild( image );
         }
 
     }
     /*  Check if a single image was found instead */
-    else if ( type === "image" || json.content.image ){
+    else if ( json.content.media_type === "image" || json.content.image ){
 
         media = document.createElement("img");
         media.src = image;
+        media.alt = "";
 
     }
 
@@ -201,13 +201,13 @@ function updateTime( timeStamp, dateType ){
 
     var yearsLeft = date.getUTCFullYear() - 1970;
 
-    return (yearsLeft > 0 ? yearsLeft + " years, " : "") +
-        date.getUTCMonth() + " months, " +
-        date.getUTCDate() + " days, " +
-        date.getUTCHours() + " hours, " +
-        date.getUTCMinutes() + " minutes and " +
-        date.getUTCSeconds() + " seconds left" +
-        (dateType ? " until " + dateType : "");
+    return (yearsLeft > 0 ? yearsLeft + " years, " : "")
+        + date.getUTCMonth() + " months, "
+        + date.getUTCDate() + " days, "
+        + date.getUTCHours() + " hours, "
+        + date.getUTCMinutes() + " minutes and "
+        + date.getUTCSeconds() + " seconds left"
+        + (dateType ? " until " + dateType : "");
 }
 
 function timeDifference( from, to = Date.now() ){
@@ -251,4 +251,18 @@ function timeUpdater( json, timeStamp, timeObject ){
         timeObject.innerHTML = initializeTime( json, timeStamp );
     }
 
+function addImages( caption, ...images ){
+    var figure = document.createElement("figure");
+
+    for( var i = 0; i < images.length; ++i ){
+        var image = document.createElement("img");
+        image.src = images[i];
+        image.alt = "";
+        figure.appendChild( image );
+    }
+
+    var figCaption = document.createElement("figcaption");
+    figCaption.innerHTML = caption;
+
+    return figure.appendChild(figCaption);
 }
