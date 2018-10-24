@@ -262,7 +262,8 @@ function addImages( caption, ...images ){
         figure.appendChild( image );
     }
 
-    if ( caption !== "" || caption !== undefined ){
+    /* Use truthy to check if caption can be added */
+    if ( caption ){
 
         var figCaption = document.createElement("figcaption");
         figCaption.innerHTML = caption;
