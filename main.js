@@ -3,7 +3,7 @@
 //https://api.nasa.gov/
 window.onload = init;
 
-class apiProxy{
+class ApiProxy{
     constructor( url ){
         this.url = url;
         this.direct = true;
@@ -21,6 +21,27 @@ class apiProxy{
             + ( this.info ? "&info=" + JSON.stringify(this.info) : ""   )
             + ( this.freshness ? "&freshness=" + this.freshness : ""    );
     }
+    static all( requestList, loadHandler ){
+        var completion = 0;
+
+        var proxyRequests = [];
+
+        for ( var i = 0; i < requestList.length; ++i ){
+
+            let request = new this( requestList[i].url );
+            request.cache = true;
+            request.freshness = 12;
+            request.info = requestList[i].info;
+
+            proxyRequests.push( request.fetchJSON()
+            .then( response => {
+                completion += 100 / requestList.length;
+                loadHandler( completion );
+                return response;
+            } ) );
+        }
+        return Promise.all( proxyRequests );
+    }
 }
 
 //////////////////////////////////////////////////////////////////
@@ -30,48 +51,30 @@ var articles;
 
 async function init(){
 
-    var proxy = new apiProxy( "webRequests.json" );
-    proxy.direct = false;
-    proxy.freshness = 12;
+    /* Fetch the requests from json */
+    var requestList = await fetch("webRequests.json").then( r => r.json() );
 
-    var articles = await loadingBar( proxy.fetchJSON() );
+    /*  Request all. Update loadingbar on response, and
+        remove loading bar upon all complete responses  */
+    var promises = ApiProxy.all( requestList, load ).then( finish );
 
-    console.log( articles );
+    /* wait for all requests to be completed */
+    var articles = await promises;
+
+    //var articles = await loadingBar( proxy.fetchJSON() );
+
+    //console.log( articles );
 
     main( articles );
 
 }
 
-function loadingBar( promise ){
-
-    /*  Get loading bar  */
-    var bar = document.getElementById("loading_animation");
-
-    /*  Animate loading bar  */
-    var animation = setInterval( ()=>{
-
-        switch( bar.innerHTML ){
-            case ".": 
-                bar.innerHTML = ".."; 
-                break;
-            case "..": 
-                bar.innerHTML = "..."; 
-                break;
-            default: 
-                bar.innerHTML = "."; 
-                break;
-        }
-    }, 300);
-
-    /* return promise, and when promise is resolved, clear animation */
-    return promise.then( result => {
-
-        clearInterval( animation );
-        document.getElementById("loading").outerHTML = "";
-
-        return result;
-
-    });
+function load( completion ){
+    document.getElementById("loading_animation") .innerHTML = completion + "%";
+}
+function finish( response ){
+    document.getElementById("loading").outerHTML = "";
+    return response;
 }
 
 function main( jsonArray ){
