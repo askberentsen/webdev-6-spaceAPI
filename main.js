@@ -3,39 +3,44 @@
 //https://api.nasa.gov/
 window.onload = init;
 
-class ApiProxy{
+class ApiProxy {
     constructor( url ){
         this.url = url;
-        this.direct = true;
         this.cache = false;
         this.info = false;
         this.freshness = 24;
     }
+    /* Get json from apiproxy */
     fetchJSON() {
         return fetch( this.form ).then( r => r.json() );
     }
+    /* Generate form for apiproxy to handle */
     get form(){
-        return "apiproxy.php?"
-            + ( (this.direct ? "direct=" : "meta=") + this.url          )
+        return "apiproxy.php?url=" + this.url
             + ( this.cache ? "&cache=" + this.cache : ""              )
             + ( this.info ? "&info=" + JSON.stringify(this.info) : ""   )
             + ( this.freshness ? "&freshness=" + this.freshness : ""    );
     }
-    static all( requestList, loadHandler ){
+    /* static all() is not a method of an instantiated ApiProxy */
+    all( loadHandler ){
+
+        var requests = this.url;
+
         var completion = 0;
 
         var proxyRequests = [];
 
-        for ( var i = 0; i < requestList.length; ++i ){
+        for ( var i = 0; i < requests.length; ++i ){
 
-            let request = new this( requestList[i].url );
-            request.cache = true;
-            request.freshness = 12;
-            request.info = requestList[i].info;
+            let request = new ApiProxy( requests[i].url || requests[i] );
+
+            request.cache = requests[i].cache || this.cache;
+            request.freshness = requests[i].freshness || this.freshness;
+            request.info = requests[i].info || this.info;
 
             proxyRequests.push( request.fetchJSON()
             .then( response => {
-                completion += 100 / requestList.length;
+                completion += 100 / requests.length;
                 loadHandler( completion );
                 return response;
             } ) );
@@ -54,16 +59,18 @@ async function init(){
     /* Fetch the requests from json */
     var requestList = await fetch("webRequests.json").then( r => r.json() );
 
+    var proxies = new ApiProxy( requestList );
+    var promises = proxies.all( load ).then( finish );
+
     /*  Request all. Update loadingbar on response, and
         remove loading bar upon all complete responses  */
-    var promises = ApiProxy.all( requestList, load ).then( finish );
 
     /* wait for all requests to be completed */
     var articles = await promises;
 
     //var articles = await loadingBar( proxy.fetchJSON() );
 
-    //console.log( articles );
+    console.log( articles );
 
     main( articles );
 
