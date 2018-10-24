@@ -4,11 +4,11 @@
 window.onload = init;
 
 class ApiProxy {
-    constructor( url ){
-        this.url = url;
-        this.cache = false;
-        this.info = false;
-        this.freshness = 24;
+    constructor( arg ){
+        this.url = arg.url || arg;
+        this.cache = arg.cache || false;
+        this.info = arg.info || false;
+        this.freshness = arg.freshness || 24;
     }
     /* Get json from apiproxy */
     fetchJSON() {
