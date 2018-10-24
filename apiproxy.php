@@ -3,26 +3,28 @@
     /* functions getContent and getUrl based off of https://davidwalsh.name/php-cache-function */
    
     /* Get contents of a request either from cache or via curl */
-    function get_content( $url, $file = "", $speed_of_rot = 24) {
+    function get_content( $url, $cache = true, $speed_of_rot = 24) {
 
+        $file = fromCache( $url );
         /* Check if file argument has been given */
         /* Check if file is in cache             */
         /* Check if file has gone stale          */
-        if( fromCache( $file ) && fresh( $file, $speed_of_rot ) ) {
-
+        if( $file && fresh( $file, $speed_of_rot ) ) {
+            echo "/* Fetched from cache */";
             /* return contents directly from cache */
-            return file_get_contents( fromCache( $file ) );
+            return file_get_contents( $file );
         }
 
         /* Else if file argument has been given */
-        else if ( $file ) {
-
+        else if ( $cache === true ) {
             /* Get url with curl, cache and return response */
-            return toCache( $url, $file );
+            echo "/* Fetched from url, saved to cache */";
+            return toCache( $url );
         }
         else{
 
             /* Only return response */
+            echo "/* Fetched from url */";
             return get_url( $url );
         }
     }
@@ -54,23 +56,23 @@
     }
 
     /* Get url, cache and return contents */
-    function toCache( $url, $file, $path = ""){
+    function toCache( $url ){
         $content = get_url( $url );
-        file_put_contents( "cache/" . $path . "/" . $file, $content);
+        file_put_contents( "cache/" . md5( $url ) . ".dat", $content);
         return $content;
     }
 
     /* Check if file is in cache, return cached location */
-    function fromCache( $file, $path = ""){
-        $cache = "cache/" . ($path ? $path . "/" : "" ) . $file;
-        return $file && file_exists( $cache ) ? $cache : false;
+    function fromCache( $url ){
+        $cache = "cache/" . md5( $url ) . ".dat";
+        return file_exists( $cache ) ? $cache : false;
     }
 
     /* Check if file has gone stale */
     function fresh( $file, $speed_of_rot = 24, $path = "" ){
         
         $now = time();
-        $lastCached = filemtime( fromCache($file, $path) );
+        $lastCached = filemtime( $file );
         $expirationTime = $speed_of_rot * 60 * 60;
         $freshness = $now - $lastCached;
 
@@ -95,7 +97,7 @@
     $meta_request = $_GET["meta"];
     $direct_request = $_GET["direct"];
 
-    $cache_response = $_GET["cache"];
+    $cache_response = boolval($_GET["cache"]);
     $info_response = json_decode($_GET["info"]);
     $freshness_response = $_GET["freshness"];
 

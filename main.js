@@ -7,29 +7,18 @@ class apiProxy{
     constructor( url ){
         this.url = url;
         this.direct = true;
-        this._cache = false;
+        this.cache = false;
         this.info = false;
         this.freshness = 24;
     }
     fetchJSON() {
         return fetch( this.form ).then( r => r.json() );
     }
-    set cache( file ){
-        if ( file === true || file === "temp" || file === "temporary" ){
-            this._cache = "temp_cache.dat";
-        }
-        else if ( file instanceof String ) {
-            this._cache = file + ".dat";
-        }
-        else {
-            this._cache = false;
-        }
-    }
     get form(){
         return "apiproxy.php?"
             + ( (this.direct ? "direct=" : "meta=") + this.url          )
-            + ( this._cache ? "&cache=" + this._cache : ""                )
-            + ( this.info ? "&info=" + JSON.stringify(this.info) : "" )
+            + ( this.cache ? "&cache=" + this.cache : ""              )
+            + ( this.info ? "&info=" + JSON.stringify(this.info) : ""   )
             + ( this.freshness ? "&freshness=" + this.freshness : ""    );
     }
 }
