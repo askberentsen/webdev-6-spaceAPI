@@ -21,31 +21,29 @@ class ApiProxy {
             + ( this.info ? "&info=" + JSON.stringify(this.info) : ""   )
             + ( this.freshness ? "&freshness=" + this.freshness : ""    );
     }
-    /* static all() is not a method of an instantiated ApiProxy */
-    all( loadHandler ){
+}
 
-        var requests = this.url;
+class ApiProxyArray {
+    constructor ( requestArray ){
+        this.requestList = requestArray;
+    }
+    all( progressionCallback ){
 
         var completion = 0;
 
-        var proxyRequests = [];
+        var promises = [];
 
-        for ( var i = 0; i < requests.length; ++i ){
+        for ( var i = 0; i < this.requestList.length; ++i ){
 
-            let request = new ApiProxy( requests[i].url || requests[i] );
+            let request = new ApiProxy(this.requestList[i]);
 
-            request.cache = requests[i].cache || this.cache;
-            request.freshness = requests[i].freshness || this.freshness;
-            request.info = requests[i].info || this.info;
-
-            proxyRequests.push( request.fetchJSON()
-            .then( response => {
-                completion += 100 / requests.length;
-                loadHandler( completion );
+            promises.push( request.fetchJSON().then( response =>{
+                completion += 100 / this.requestList.length;
+                progressionCallback( completion );
                 return response;
-            } ) );
+            }) );
         }
-        return Promise.all( proxyRequests );
+        return Promise.all( promises );
     }
 }
 
