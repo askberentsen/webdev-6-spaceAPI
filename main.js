@@ -27,7 +27,7 @@ class ApiProxyArray {
     constructor ( requestArray ){
         this.requestList = requestArray;
     }
-    all( progressionCallback ){
+    all( progressionCallback = ()=>{}, modifier = r => r ){
 
         var completion = 0;
 
@@ -35,13 +35,14 @@ class ApiProxyArray {
 
         for ( var i = 0; i < this.requestList.length; ++i ){
 
-            let request = new ApiProxy(this.requestList[i]);
-
-            promises.push( request.fetchJSON().then( response =>{
-                completion += 100 / this.requestList.length;
-                progressionCallback( completion );
-                return response;
-            }) );
+            promises.push( ApiProxy.fetchJSON( this.requestList[i] )
+                .then( modifier )
+                .then( response => {
+                    completion += 100 / this.requestList.length;
+                    progressionCallback( completion );
+                    return response;
+                } )
+            );
         }
         return Promise.all( promises );
     }
