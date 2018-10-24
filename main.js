@@ -163,6 +163,9 @@ function jSummary( article, json ){
     }
 
 }
+//////////////////////////////////////
+//          Media functions         //
+//////////////////////////////////////
 
 /*  Add image if available  */
 function jMedia( article, json ){
@@ -192,6 +195,34 @@ function jMedia( article, json ){
     }
 }
 
+function addImages( caption, ...images ){
+    var figure = document.createElement("figure");
+
+    for( var i = 0; i < images.length; ++i ){
+
+        var image = document.createElement("img");
+        image.src = images[i];
+        image.alt = "";
+
+        figure.appendChild( image );
+    }
+
+    /* Use truthy to check if caption can be added */
+    if ( caption ){
+
+        var figCaption = document.createElement("figcaption");
+        figCaption.innerHTML = caption;
+    
+        figure.appendChild(figCaption);
+
+    }
+
+    return figure;
+}
+
+////////////////////////////////////////////
+//            Time functions              //
+////////////////////////////////////////////
 
 function updateTime( timeStamp, dateType ){
     var date = new Date(timeDifference(timeStamp));
@@ -226,9 +257,6 @@ function initializeTime( json, timeStamp ){
         "Date: " + relevantTime;
 }
 
-
-
-
 function timeUpdater( json, timeStamp, timeObject ){
 
     /* If time is in the future update time regularly */
@@ -256,29 +284,4 @@ function timeUpdater( json, timeStamp, timeObject ){
         timeObject.innerHTML = initializeTime( json, timeStamp );
     }
 
-}
-
-function addImages( caption, ...images ){
-    var figure = document.createElement("figure");
-
-    for( var i = 0; i < images.length; ++i ){
-
-        var image = document.createElement("img");
-        image.src = images[i];
-        image.alt = "";
-
-        figure.appendChild( image );
-    }
-
-    /* Use truthy to check if caption can be added */
-    if ( caption ){
-
-        var figCaption = document.createElement("figcaption");
-        figCaption.innerHTML = caption;
-    
-        figure.appendChild(figCaption);
-
-    }
-
-    return figure;
 }
