@@ -3,12 +3,14 @@
 //https://api.nasa.gov/
 window.onload = init;
 
+/* Use ApiProxy to request cross domain and potentially cache */
+/* Returns a new promise */
 class ApiProxy {
     constructor( arg ){
         this.url = arg.url || arg;
         this.cache = arg.cache || false;
         this.info = arg.info || false;
-        this.freshness = arg.freshness || 24;
+        this.freshness = arg.freshness || 8;
         return this;
     }
     /* Get json from apiproxy */
@@ -28,6 +30,8 @@ class ApiProxy {
     }
 }
 
+/* Use ApiProxyArray to request many ApiProxy requests */
+/* Returns a new promise */
 class ApiProxyArray {
     constructor ( requestArray ){
         this.requestList = requestArray;
@@ -62,7 +66,7 @@ var articles;
 async function init(){
 
     /* Fetch the requests from json */
-    var proxies = await fetch("webRequests.json")
+    var requests = await fetch("webRequests.json")
         .then( response => response.json() )
         .then( response => { return new ApiProxyArray( response ) } );
 
@@ -70,7 +74,7 @@ async function init(){
     // var proxies = await ApiProxy("webRequests.json")
     //     .then( response => { return new ApiProxyArray( response ) } );
 
-    articles = await proxies.all( load ).then( finish );
+    articles = await requests.all( load ).then( finish );
 
     console.log( articles );
 
@@ -85,6 +89,10 @@ function finish( response ){
     document.getElementById("loading").outerHTML = "";
     return response;
 }
+
+//////////////////////////////////////////////////////////////////
+//                        Write articles                        //
+//////////////////////////////////////////////////////////////////
 
 function main( jsonArray ){
 
@@ -102,7 +110,12 @@ function writeArticle( location, json ){
 
     var article = document.createElement("article");
 
-    json.content = json.info.type === "latest" ? json.content[ json.content.length - 1 ] : json.content;
+    if ( json.info.type === "latest" ){
+        json.content = json.content[ json.content.length - 1 ];
+    }
+    else if ( json.info.type === "first" ){
+        json.content = json.content[ 0 ];
+    }
 
     jTitle( article, json );
 
@@ -233,18 +246,41 @@ function addImages( caption, ...images ){
 //            Time functions              //
 ////////////////////////////////////////////
 
-function updateTime( timeStamp, dateType ){
-    var date = new Date(timeDifference(timeStamp));
 
-    var yearsLeft = date.getUTCFullYear() - 1970;
+function updateTime( timeStamp ){
 
-    return (yearsLeft > 0 ? yearsLeft + " years, " : "")
-        + date.getUTCMonth() + " months, "
-        + date.getUTCDate() + " days, "
-        + date.getUTCHours() + " hours, "
-        + date.getUTCMinutes() + " minutes and "
-        + date.getUTCSeconds() + " seconds left"
-        + (dateType ? " until " + dateType : "");
+    var date = new Date( timeDifference(timeStamp) );
+
+    var output = "";
+    var cascade = false;
+    var years = date.getUTCFullYear() - 1970;
+    var months = date.getUTCMonth();
+    var days = date.getUTCDate();
+    var hours = date.getUTCHours();
+    var minutes = date.getUTCMinutes();
+    var seconds = date.getUTCSeconds();
+    if ( years > 0 ){
+        cascade = true;
+        output += years + " years, ";
+    }
+    if ( months > 0 || cascade ){
+        cascade = true;
+        output += months + " months, ";
+    }
+    if ( days > 0 || cascade ){
+        cascade = true;
+        output += days + " days, ";
+    }
+    if ( hours > 0 || cascade ){
+        cascade = true;
+        output += hours + " hours, ";
+    }
+    if ( minutes > 0 || cascade ){
+        cascade = true;
+        output += minutes + " minutes, ";
+    }
+    output += seconds + " seconds left";
+    return output;
 }
 
 function timeDifference( from, to = Date.now() ){
@@ -286,7 +322,7 @@ function timeUpdater( json, timeStamp, timeObject ){
                 clearInterval( updater );
                 timeObject.innerHTML = timeStamp;
             }
-        }, 800 );
+        }, 200 );
     }
     /* Time is in the past, initialize timeObject to timeStamp */
     else {

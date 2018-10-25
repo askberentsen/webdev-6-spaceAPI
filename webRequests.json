@@ -10,10 +10,10 @@
 	{
 		"info": {
 			"domain": "SpaceX",
-			"type": "latest"
+			"type": "first"
 		},
 		"cache": "spacex_ships_latest.dat",
-		"url": "https://api.spacexdata.com/v3/ships"
+		"url": "https://api.spacexdata.com/v3/launches/upcoming"
 	},
 	{
 		"info": {
