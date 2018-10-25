@@ -111,18 +111,34 @@ function writeArticle( location, json ){
 
     var article = document.createElement("article");
 
-    if ( json.info.type === "latest" ){
-        json.content = json.content[ json.content.length - 1 ];
-    }
-    else if ( json.info.type === "first" ){
-        json.content = json.content[ 0 ];
+    if ( json.info.id ){
+        article.id = json.info.id;
     }
 
-    jTitle( article, json );
+    // if ( json.info.type === "latest" ){
+    //     json.content = json.content[ json.content.length - 1 ];
+    // }
+    // else if ( json.info.type === "first" ){
+    //     //json.content = json.content[ 0 ];
+    // }
 
-    jMedia( article, json );
+    //article.appendChild( jTitle( json ) );
 
-    jSummary( article, json );
+    let nav = jNav( json );
+    if ( nav ){
+        article.appendChild( nav );
+    }
+
+
+    // for ( var i = 0; i < sections; ++i ){
+
+    //     jSection( article, json, i );
+
+    // }
+
+    //jMedia( article, json );
+
+    //jSummary( article, json );
 
     //jDetails( article, json );
 
@@ -131,16 +147,50 @@ function writeArticle( location, json ){
     location.appendChild(article);
 }
 
-function jTitle( article, json ){
+function jNav( json ){
+
+    /* Declare navigation */
+    let navigation;
+
+    /* If json calls for several sections, add menu-buttons */
+    if ( json.info.sections && json.info.sections.length > 1 ){
+
+        /*  */
+        navigation = document.createElement("nav");
+
+        for ( let sectionName of json.info.sections ){
+
+            let menuItem = jButton( sectionName, function(){console.log(this.innerHTML + " was clicked")})
+            navigation.appendChild(menuItem);
+
+        }
+    }
+
+    return navigation;
+}
+
+function jButton( innerHTML, handler ){
+    let button = document.createElement("button");
+    button.innerHTML = innerHTML;
+    button.onclick = handler;
+    return button;
+}
+
+function jSection( location, json, id ){
+   // console.log( id );
+}
+
+
+function jTitle( json ){
 
     /* Instantiate nodes */
-    var banner = document.createElement("header");
-    var title = document.createElement("h2");
+    let banner = document.createElement("header");
+    let title = document.createElement("h2");
 
     /*  Extract title from json.  */
     /*  Different API responses have different structure, so if 
         none are found where expected, default to domain name  */
-    var titleText = 
+    let titleText = 
         json.content.title || 
         json.content.mission_name || 
         json.content.name || 
@@ -153,7 +203,7 @@ function jTitle( article, json ){
 
     /*  Extract timestamp */
     /*  If no timestamp is given, don't add timestamp to article */
-    var timeStamp = 
+    let timeStamp = 
         json.content.date || 
         json.content.launch_date_utc || 
         json.content.event_date_utc || 
@@ -162,7 +212,7 @@ function jTitle( article, json ){
     if( timeStamp ){
 
         /* Append timestamp */
-        var time = document.createElement("time");
+        let time = document.createElement("time");
         time.dateTime = timeStamp;
 
         timeUpdater( json, timeStamp, time );
@@ -170,8 +220,7 @@ function jTitle( article, json ){
         banner.appendChild( time );
     }
 
-    /* Append title to article */
-    article.appendChild( banner );
+    return banner;
 }
 
 /*  Write summary if available  */
