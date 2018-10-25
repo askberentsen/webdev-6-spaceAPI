@@ -268,6 +268,8 @@ function updateTime( timeStamp ){
             output += formats[ key ] + " " + key + ", ";
         }
     }
+    output += date.getUTCSeconds() + " seconds left";
+    return output;
 }
 
 function timeDifference( from, to = Date.now() ){
