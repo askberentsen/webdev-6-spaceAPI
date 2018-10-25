@@ -199,7 +199,7 @@ function jMedia( article, json ){
     var imageArray = json.content.flickr_images || (json.content.links ? json.content.links.flickr_images : undefined );
 
     /*  Check if json contains several images */
-    if( imageArray ){
+    if( imageArray && imageArray.length > 0 ){
 
         media = addImages("", ...imageArray);
 
