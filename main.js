@@ -101,13 +101,13 @@ function main( jsonArray ){
 
     for( var i = 0; i < jsonArray.length; ++i ){
 
-        writeArticle( main, jsonArray[i] );
+        writeArticle( main, jsonArray[i], i );
 
     }
 
 }
 
-function writeArticle( location, json ){
+function writeArticle( location, json, id ){
 
     var article = document.createElement("article");
 
@@ -124,9 +124,15 @@ function writeArticle( location, json ){
 
     //article.appendChild( jTitle( json ) );
 
-    let nav = jNav( json );
+    let nav = jNav( article, json );
     if ( nav ){
         article.appendChild( nav );
+    }
+    let sections = jSections( json );
+    if ( sections ){
+        sections.forEach(element => {
+            article.appendChild( element );
+        });
     }
 
 
@@ -147,7 +153,7 @@ function writeArticle( location, json ){
     location.appendChild(article);
 }
 
-function jNav( json ){
+function jNav( location, json ){
 
     /* Declare navigation */
     let navigation;
@@ -155,17 +161,22 @@ function jNav( json ){
     /* If json calls for several sections, add menu-buttons */
     if ( json.info.sections && json.info.sections.length > 1 ){
 
-        /*  */
+        /* Create a navbar */
         navigation = document.createElement("nav");
 
-        for ( let sectionName of json.info.sections ){
+        /* For each section in json, add a menu-button */
+        for ( let i = 0; i < json.info.sections.length; ++i ){
 
-            let menuItem = jButton( sectionName, function(){console.log(this.innerHTML + " was clicked")})
+            /* Set the name of the button to the json section name */
+            let sectionName = json.info.sections[i];
+
+            /* Add button, and the onclick event that updates the visible section */
+            let menuItem = jButton( sectionName, function(){ updateVisible( location, "section", i ) })
+
             navigation.appendChild(menuItem);
 
         }
     }
-
     return navigation;
 }
 
@@ -176,8 +187,44 @@ function jButton( innerHTML, handler ){
     return button;
 }
 
-function jSection( location, json, id ){
+function jSections( json ){
+
+    /* Declare an empty array, not as a nodelist. The appending is done elsewhere */
+    let arr = [];
+
+    /* If the json calls for sections, create these sections */
+    if ( json.info.sections && json.info.sections.length > 1 ){
+
+        for( let i = 0; i < json.info.sections.length; ++i ){
+
+            let sectionName = json.info.sections[i];
+
+            /* Instantiate a new section */
+            let section = document.createElement("section");
+
+            /* Add the sectionname to the classlist so it can be found by other functions */
+            section.classList.add( sectionName );
+            section.dataset.index = i;
+
+            /* Actual contents of section */
+            section.innerHTML = "Section: " + sectionName;
+            arr.push( section );
+
+        }
+
+        return arr;
+    }
    // console.log( id );
+}
+function updateVisible( location, tag, index ){
+    
+    /* Get a list of all the tags */
+    let set = location.getElementsByTagName( tag );
+
+    /* If the element matches the index, show, otherwise hide */
+    for( let i = 0; i < set.length; ++i ){
+        set[i].style.display =  i === index ? "block" : "none";
+    }
 }
 
 
