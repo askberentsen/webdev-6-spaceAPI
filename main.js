@@ -207,16 +207,21 @@ function jSections( location, json ){
             let sectionName = json.info.sections[i];
 
             /* Add button, and the onclick event that updates the visible section */
-            let menuItem = jButton( sectionName, function(){ updateVisible( location, "section", i ) })
+            let menuItem = jButton( sectionName, function(){ 
+                updateData( location, "section", "visible", i ) 
+                updateData( location, "button", "selected", i ) 
+            })
 
+            
             navigation.appendChild(menuItem);
-
+            
             /* Instantiate a new section */
             let section = document.createElement("section");
-
+            
             /* Add the sectionname to the classlist so it can be found by other functions */
             section.classList.add( sectionName );
-            section.dataset.index = i;
+
+            menuItem.dataset.selected = i === 0;
             section.dataset.visible = i === 0;
 
             /* Actual contents of section */
@@ -228,14 +233,14 @@ function jSections( location, json ){
     }
    // console.log( id );
 }
-function updateVisible( location, tag, index ){
+function updateData( location, tag, data, index ){
     
     /* Get a list of all the tags */
     let set = location.getElementsByTagName( tag );
 
     /* If the element matches the index, show, otherwise hide */
     for( let i = 0; i < set.length; ++i ){
-        set[i].dataset.visible = i === index;
+        set[i].dataset[ data ] = i === index;
     }
 }
 
