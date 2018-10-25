@@ -208,8 +208,8 @@ function jSections( location, json ){
 
             /* Add button, and the onclick event that updates the visible section */
             let menuItem = jButton( sectionName, function(){ 
-                updateData( location, "section", "visible", i ) 
-                updateData( location, "button", "selected", i ) 
+                updateData( location, "section", "visible", index=>index === i ) 
+                updateData( location, "button", "selected", index=>index === i ) 
             })
 
             
@@ -233,14 +233,14 @@ function jSections( location, json ){
     }
    // console.log( id );
 }
-function updateData( location, tag, data, index ){
+function updateData( location, tag, data, conditional ){
     
     /* Get a list of all the tags */
     let set = location.getElementsByTagName( tag );
 
     /* If the element matches the index, show, otherwise hide */
     for( let i = 0; i < set.length; ++i ){
-        set[i].dataset[ data ] = i === index;
+        set[i].dataset[ data ] = conditional(i);
     }
 }
 
