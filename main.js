@@ -124,13 +124,16 @@ function writeArticle( location, json, id ){
 
     //article.appendChild( jTitle( json ) );
 
-    let nav = jNav( article, json );
-    if ( nav ){
-        article.appendChild( nav );
-    }
-    let sections = jSections( json );
+    // let nav = jNav( article, json );
+    // if ( nav ){
+    //     article.appendChild( nav );
+    // }
+    let sections = jSections( article, json );
+
     if ( sections ){
-        sections.forEach(element => {
+        article.appendChild( sections.nav );
+
+        sections.arr.forEach( element => {
             article.appendChild( element );
         });
     }
@@ -187,17 +190,26 @@ function jButton( innerHTML, handler ){
     return button;
 }
 
-function jSections( json ){
+function jSections( location, json ){
 
     /* Declare an empty array, not as a nodelist. The appending is done elsewhere */
     let arr = [];
 
+    let navigation;
+
     /* If the json calls for sections, create these sections */
     if ( json.info.sections && json.info.sections.length > 1 ){
+
+        navigation = document.createElement("nav");
 
         for( let i = 0; i < json.info.sections.length; ++i ){
 
             let sectionName = json.info.sections[i];
+
+            /* Add button, and the onclick event that updates the visible section */
+            let menuItem = jButton( sectionName, function(){ updateVisible( location, "section", i ) })
+
+            navigation.appendChild(menuItem);
 
             /* Instantiate a new section */
             let section = document.createElement("section");
@@ -205,14 +217,14 @@ function jSections( json ){
             /* Add the sectionname to the classlist so it can be found by other functions */
             section.classList.add( sectionName );
             section.dataset.index = i;
+            section.dataset.visible = i === 0;
 
             /* Actual contents of section */
             section.innerHTML = "Section: " + sectionName;
             arr.push( section );
 
         }
-
-        return arr;
+        return {nav: navigation, arr: arr };
     }
    // console.log( id );
 }
@@ -223,7 +235,7 @@ function updateVisible( location, tag, index ){
 
     /* If the element matches the index, show, otherwise hide */
     for( let i = 0; i < set.length; ++i ){
-        set[i].style.display =  i === index ? "block" : "none";
+        set[i].dataset.visible = i === index;
     }
 }
 
