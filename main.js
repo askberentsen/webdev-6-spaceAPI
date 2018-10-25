@@ -1,3 +1,4 @@
+"use strict";
 /*I work 50/50 with VS-code and Atom. Indentation is correct in editor, but not necessairily in browser*/
 
 //https://api.nasa.gov/
@@ -262,7 +263,7 @@ function updateTime( timeStamp ){
         minutes: date.getUTCMinutes()
     }
 
-    for( key in formats ){
+    for( var key in formats ){
         if ( formats[ key ] > 0 || cascade ){
             cascade = true;
             output += formats[ key ] + " " + key + ", ";
