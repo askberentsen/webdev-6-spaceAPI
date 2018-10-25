@@ -253,34 +253,21 @@ function updateTime( timeStamp ){
 
     var output = "";
     var cascade = false;
-    var years = date.getUTCFullYear() - 1970;
-    var months = date.getUTCMonth();
-    var days = date.getUTCDate();
-    var hours = date.getUTCHours();
-    var minutes = date.getUTCMinutes();
-    var seconds = date.getUTCSeconds();
-    if ( years > 0 ){
-        cascade = true;
-        output += years + " years, ";
+
+    var formats = { 
+        years: date.getUTCFullYear() - 1970,
+        months: date.getUTCMonth(),
+        days: date.getUTCDate(),
+        hours: date.getUTCHours(),
+        minutes: date.getUTCMinutes()
     }
-    if ( months > 0 || cascade ){
-        cascade = true;
-        output += months + " months, ";
+
+    for( key in formats ){
+        if ( formats[ key ] > 0 || cascade ){
+            cascade = true;
+            output += formats[ key ] + " " + key + ", ";
+        }
     }
-    if ( days > 0 || cascade ){
-        cascade = true;
-        output += days + " days, ";
-    }
-    if ( hours > 0 || cascade ){
-        cascade = true;
-        output += hours + " hours, ";
-    }
-    if ( minutes > 0 || cascade ){
-        cascade = true;
-        output += minutes + " minutes, ";
-    }
-    output += seconds + " seconds left";
-    return output;
 }
 
 function timeDifference( from, to = Date.now() ){
