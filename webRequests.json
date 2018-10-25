@@ -12,7 +12,8 @@
 			"domain": "SpaceX",
 			"type": "library",
 			"id": "upcomming_launch",
-			"sections": [ "next", "all" ]
+			"sections": [ "next", "all" ],
+			"title": "Launches"
 		},
 		"cache": "spacex_ships_latest.dat",
 		"url": "https://api.spacexdata.com/v3/launches/upcoming"
@@ -37,7 +38,8 @@
 		"info": {
 			"domain": "SpaceX",
 			"type": "library",
-			"sections": [ "newest", "all" ]
+			"sections": [ "newest", "all" ],
+			"title": "History"
 		},
 		"cache": "spacex_history_latest.dat",
 		"url": "https://api.spacexdata.com/v3/history"

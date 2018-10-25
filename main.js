@@ -99,88 +99,288 @@ function main( jsonArray ){
 
     var main = document.getElementsByTagName("MAIN")[0];
 
-    for( var i = 0; i < jsonArray.length; ++i ){
+    for( let json of jsonArray ){
 
-        writeArticle( main, jsonArray[i], i );
+        main.appendChild( writeArticle( json ) );
 
     }
 
 }
 
-function writeArticle( location, json, id ){
+function writeArticle( json ){
 
-    var article = document.createElement("article");
+    /* Define all the elements that are independent of API response */
+    let article = document.createElement("article");
 
-    if ( json.info.id ){
-        article.id = json.info.id;
+    /* Define nodes */
+    let banner      = createBanner      ( json );
+    let navigation  = createNavigation  ( json );
+    let sections    = createSections    ( json );
+    let footer      = createFooter      ( json );
+    
+    /* Append nodes */
+    article.appendChild( banner );
+    if ( navigation ) { 
+        article.appendChild( navigation );
     }
 
-    // if ( json.info.type === "latest" ){
-    //     json.content = json.content[ json.content.length - 1 ];
-    // }
-    // else if ( json.info.type === "first" ){
-    //     //json.content = json.content[ 0 ];
-    // }
-
-    //article.appendChild( jTitle( json ) );
-
-    // let nav = jNav( article, json );
-    // if ( nav ){
-    //     article.appendChild( nav );
-    // }
-    let sections = jSections( article, json );
-
-    if ( sections ){
-        article.appendChild( sections.nav );
-
-        sections.arr.forEach( element => {
-            article.appendChild( element );
-        });
+    for ( let section of sections ){
+        article.appendChild( section );
     }
+    article.appendChild( footer );
 
+    // initializeArticle( article, json );
 
-    // for ( var i = 0; i < sections; ++i ){
+    return article;
 
-    //     jSection( article, json, i );
-
-    // }
-
-    //jMedia( article, json );
-
-    //jSummary( article, json );
-
-    //jDetails( article, json );
-
-    //jFooter( article, json );
-
-    location.appendChild(article);
 }
 
-function jNav( location, json ){
+function createBanner( json ){
 
-    /* Declare navigation */
-    let navigation;
+    /* Define all nodes */
+    let banner      = document.createElement( "header" );
+    let header      = document.createElement( "h2"     );
+    let title       = document.createElement( "span"   );
+    let subtitle    = document.createElement( "span"   );
 
-    /* If json calls for several sections, add menu-buttons */
-    if ( json.info.sections && json.info.sections.length > 1 ){
+    /* Append nodes */
+    banner.appendChild( header   );
+    header.appendChild( title    );
+    header.appendChild( subtitle );
 
-        /* Create a navbar */
-        navigation = document.createElement("nav");
+    /* Populate attributes */
+    banner  .classList.add( "article_header"     );
+    header  .classList.add( "article_title"      );
+    title   .classList.add( "article_title_text" );
+    subtitle.classList.add( "article_subtitle"   );
+    
+    /* Populate nodes */
+    title.innerHTML = json.info.title || json.content.title || json.content.name || json.content.mission_name;
 
-        /* For each section in json, add a menu-button */
-        for ( let i = 0; i < json.info.sections.length; ++i ){
+    /* Return node */
+    return banner;
+}
 
-            /* Set the name of the button to the json section name */
-            let sectionName = json.info.sections[i];
+function createNavigation( json ){
 
-            /* Add button, and the onclick event that updates the visible section */
-            let menuItem = jButton( sectionName, function(){ updateVisible( location, "section", i ) })
+    /* If navigation is not needed, return nothing */
+    if ( !( json.info.sections && json.info.sections.length > 1) ){
+        return null;
+    }
+    else {
+        /* Define nav node */
+        let navigation = document.createElement("nav");
 
-            navigation.appendChild(menuItem);
+        for( let section of json.info.sections ){
 
+            /* Define menu item node */
+            let menuItem = document.createElement("button");
+
+            /* Append node */
+            navigation.appendChild( menuItem );
+
+            /* Populate node */
+            menuItem.onclick                = switchSection                ;
+            menuItem.innerHTML              = section                      ;
+            menuItem.dataset.selected       = false                        ;
+            menuItem.dataset.targetId       = json.info.id + "_" + section ;
+            menuItem.dataset.targetName     = json.info.id                 ;
+            menuItem.setAttribute ( "name",   json.info.id + "_button"    );
         }
+
+        return navigation;
     }
-    return navigation;
+}
+
+function createSections( json ){
+
+    /* If several sections are available, iterate through that, else iterate once with key "normal" */
+    let population = json.info.sections || ["normal"];
+
+    let nodeList = [];
+
+    for ( let type of population ){
+
+        let relevantJson = limitJson( json, type );
+
+        /* Define node */
+        let section = document.createElement( "section" );
+
+        /* Append node */
+        nodeList.push( section );
+
+        /* Populate attributes */
+        section.classList.add ( "section_" + type  );
+        section.id = ( json.info.id + "_" + type   );
+        section.setAttribute( "name", json.info.id );
+
+        /* Populate node */
+
+        section.innerHTML = relevantJson.details || relevantJson.explanation;
+
+    }
+    return nodeList;
+}
+
+function createFooter( json ){
+
+    /* Define node */
+    let footer = document.createElement( "footer" );
+
+    /* Populate attributes */
+
+    /* Populate node */
+    footer.innerHTML = "Hello World!";
+
+    return footer;
+}
+
+function switchSection( evt ){
+
+    /* Get sections of article */
+    let selectedSection    = document.getElementById   ( this.dataset.targetId   );
+    let unselectedSections = document.getElementsByName( this.dataset.targetName );
+    let unselectedButtons  = document.getElementsByName( this.name               );
+
+    /* For each section that isn't selected, hide */
+    for ( let node of unselectedSections ){
+        node.dataset.visible = false;
+    }
+    /* For each button that isn't selected, unselect */
+    for ( let button of unselectedButtons ){
+        button.dataset.selected = false;
+    }
+    /* Show selected section and select button */
+    selectedSection.dataset.visible = true;
+    this.dataset.selected = true;
+}
+
+function limitJson( json, type ){
+    switch ( type ){
+        case "latest":
+        case "last":
+        case "newest":
+            return json.content[ json.content.length - 1 ];
+        case "first":
+        case "next":
+        case "oldest":
+            return json.content[ 0 ];
+        default:
+            return json.content;
+    }
+}
+
+
+
+
+
+
+
+
+
+    // /* If the json calls for sections, create these sections */
+    // if ( json.info.sections && json.info.sections.length > 1 ){
+
+    //     navigation = document.createElement("nav");
+    //     article.appendChild( navigation );
+
+    //     for( let i = 0; i < json.info.sections.length; ++i ){
+
+    //         let sectionName = json.info.sections[i];
+
+    //         /* Add button, and the onclick event that updates the visible section, and changes the selected button */
+
+    //         let menuItem = jButton( sectionName, function(){
+    //             updateArticle( article, index => index === i );
+    //         } );
+            
+    //         navigation.appendChild( menuItem );
+            
+    //         /* Instantiate a new section */
+    //         let section = jSection( json, sectionName )
+
+    //         /* Add the sectionname to the classlist so it can be found by other functions */
+    //         section.classList.add( sectionName );
+
+    //         /* Actual contents of section */
+    //         article.appendChild( section );
+
+    //     }
+    //     updateArticle( article, index => index === 0 );
+    // }
+    // else {
+    //     let section = jSection( json, "normal");
+
+    //     article.appendChild( section );
+    // }
+    // return article;
+//}
+
+function jSection( json, type ){
+    let section = document.createElement("section");
+    let header;
+    // if ( type !== "normal"){
+    //     header = document.createElement("h2");
+    //     section.appendChild(header);
+    // }
+
+    switch ( type ){
+        case "normal":
+            break;
+        case "next": //do something
+        case "first":
+            section.dataset.timestamp = timeStamp( json.content[0] );
+            //section.innerHTML = "next article";
+            break;
+        case "all": //do something
+            //section.innerHTML = "all article";
+            break;
+        case "newest": //do something
+        case "latest":
+        case "last":
+            section.dataset.timestamp = timeStamp( json.content[ json.content.length - 1 ] );
+            //section.innerHTML = "newest article";
+            break;
+        default:
+            //section.innerHTML = "normal article";
+            break;
+
+    }
+    return section;
+}
+
+function jTitle( json ){
+
+    /* Instantiate nodes */
+    let banner = document.createElement("header");
+    let title = document.createElement("h2");
+    let subtitle = document.createElement("span");
+    let time = document.createElement("time");
+
+
+    banner.classList.add("article_header");
+    subtitle.classList.add("subtitle");
+    time.classList.add("timestamp");
+    time.dataset.visible = false;
+    time.dateTime = timeStamp( json.content );
+
+    /*  Extract title from json.  */
+    /*  Different API responses have different structure, so if 
+        none are found where expected, default to domain name  */
+    let titleText = 
+        json.info.title ||
+        json.content.title || 
+        json.content.mission_name || 
+        json.content.name || 
+        json.content.ship_name;
+
+    /*  Append title to banner */
+    title.innerHTML = titleText;
+    banner.appendChild( title );
+    banner.appendChild( time );
+    title.appendChild( subtitle );
+
+    return banner;
 }
 
 function jButton( innerHTML, handler ){
@@ -189,103 +389,56 @@ function jButton( innerHTML, handler ){
     button.onclick = handler;
     return button;
 }
+function updateArticle( article, conditional ){
 
-function jSections( location, json ){
+    let target = updateAttribute( article.getElementsByTagName("section"), "dataset.visible", conditional );
+    updateAttribute( article.getElementsByTagName("button"), "dataset.selected", conditional );
+    updateAttribute( article.getElementsByTagName("button"), "dataset.selected", conditional );
 
-    /* Declare an empty array, not as a nodelist. The appending is done elsewhere */
-    let arr = [];
+    let subtitle = article.getElementsByClassName("subtitle")[0];
+    let time = article.getElementsByClassName("timestamp")[0];
 
-    let navigation;
+    if ( target[0].dataset.timestamp ){
+        time.dataset.visible = true;
+        time.innerHTML = target[0].dataset.timestamp;
 
-    /* If the json calls for sections, create these sections */
-    if ( json.info.sections && json.info.sections.length > 1 ){
+        
+    }
+    else {
+        time.dataset.visible = false;
+    }
 
-        navigation = document.createElement("nav");
 
-        for( let i = 0; i < json.info.sections.length; ++i ){
+}
 
-            let sectionName = json.info.sections[i];
+function updateAttribute( set, attributes, conditional ){
 
-            /* Add button, and the onclick event that updates the visible section */
-            let menuItem = jButton( sectionName, function(){ 
-                updateData( location, "section", "visible", index=>index === i ) 
-                updateData( location, "button", "selected", index=>index === i ) 
-            })
+    let active = [];
 
-            
-            navigation.appendChild(menuItem);
-            
-            /* Instantiate a new section */
-            let section = document.createElement("section");
-            
-            /* Add the sectionname to the classlist so it can be found by other functions */
-            section.classList.add( sectionName );
+    for ( let i = 0; i < set.length; ++i ){
 
-            menuItem.dataset.selected = i === 0;
-            section.dataset.visible = i === 0;
+        let selected = conditional( i );
 
-            /* Actual contents of section */
-            section.innerHTML = "Section: " + sectionName;
-            arr.push( section );
+        set[ i ][ attributes ] = selected;
 
+        if ( selected ){
+            active.push( set[i] )
         }
-        return {nav: navigation, arr: arr };
-    }
-   // console.log( id );
-}
-function updateData( location, tag, data, conditional ){
-    
-    /* Get a list of all the tags */
-    let set = location.getElementsByTagName( tag );
 
-    /* If the element matches the index, show, otherwise hide */
-    for( let i = 0; i < set.length; ++i ){
-        set[i].dataset[ data ] = conditional(i);
     }
+    return active;
+}
+
+function timeStamp( json ){
+
+    return json.launch_date_utc ||
+        json.event_date_utc ||
+        json.date ||
+        json.year_built;
 }
 
 
-function jTitle( json ){
 
-    /* Instantiate nodes */
-    let banner = document.createElement("header");
-    let title = document.createElement("h2");
-
-    /*  Extract title from json.  */
-    /*  Different API responses have different structure, so if 
-        none are found where expected, default to domain name  */
-    let titleText = 
-        json.content.title || 
-        json.content.mission_name || 
-        json.content.name || 
-        json.content.ship_name || 
-        json.info.domain;
-
-    /*  Append title to banner */
-    title.innerHTML = titleText;
-    banner.appendChild( title );
-
-    /*  Extract timestamp */
-    /*  If no timestamp is given, don't add timestamp to article */
-    let timeStamp = 
-        json.content.date || 
-        json.content.launch_date_utc || 
-        json.content.event_date_utc || 
-        json.content.year_built;
-
-    if( timeStamp ){
-
-        /* Append timestamp */
-        let time = document.createElement("time");
-        time.dateTime = timeStamp;
-
-        timeUpdater( json, timeStamp, time );
-
-        banner.appendChild( time );
-    }
-
-    return banner;
-}
 
 /*  Write summary if available  */
 function jSummary( article, json ){
@@ -361,75 +514,75 @@ function addImages( caption, ...images ){
 ////////////////////////////////////////////
 
 
-function updateTime( timeStamp ){
+// function updateTime( timeStamp ){
 
-    var date = new Date( timeDifference(timeStamp) );
+//     var date = new Date( timeDifference(timeStamp) );
 
-    var output = "";
-    var cascade = false;
+//     var output = "";
+//     var cascade = false;
 
-    var formats = { 
-        years: date.getUTCFullYear() - 1970,
-        months: date.getUTCMonth(),
-        days: date.getUTCDate(),
-        hours: date.getUTCHours(),
-        minutes: date.getUTCMinutes()
-    }
+//     var formats = { 
+//         years: date.getUTCFullYear() - 1970,
+//         months: date.getUTCMonth(),
+//         days: date.getUTCDate(),
+//         hours: date.getUTCHours(),
+//         minutes: date.getUTCMinutes()
+//     }
 
-    for( var key in formats ){
-        if ( formats[ key ] > 0 || cascade ){
-            cascade = true;
-            output += formats[ key ] + " " + key + ", ";
-        }
-    }
-    output += date.getUTCSeconds() + " seconds left";
-    return output;
-}
+//     for( var key in formats ){
+//         if ( formats[ key ] > 0 || cascade ){
+//             cascade = true;
+//             output += formats[ key ] + " " + key + ", ";
+//         }
+//     }
+//     output += date.getUTCSeconds() + " seconds left";
+//     return output;
+// }
 
-function timeDifference( from, to = Date.now() ){
-    return new Date( from ) - new Date(to);
-}
+// function timeDifference( from, to = Date.now() ){
+//     return new Date( from ) - new Date(to);
+// }
 
-function initializeTime( json, timeStamp ){
-    var date = new Date( timeStamp );
+// function initializeTime( json, timeStamp ){
+//     var date = new Date( timeStamp );
 
-    /* Spaghetti date extracter :^) */
-    var relevantTime = String( date.getDate() ).padStart(2,0) 
-        + "/" + String( date.getMonth() ).padStart(2,0) 
-        + "/" + date.getFullYear();
+//     /* Spaghetti date extracter :^) */
+//     var relevantTime = String( date.getDate() ).padStart(2,0) 
+//         + "/" + String( date.getMonth() ).padStart(2,0) 
+//         + "/" + date.getFullYear();
 
 
-    return (
-        json.content.launch_date_utc ? "Launched: " + relevantTime : undefined ) ||
-        (json.content.year_built ? "Built in " + date.getFullYear() : undefined) ||
-        "Date: " + relevantTime;
-}
+//     return (
+//         json.content.launch_date_utc ? "Launched: " + relevantTime : undefined ) ||
+//         (json.content.year_built ? "Built in " + date.getFullYear() : undefined) ||
+//         "Date: " + relevantTime;
+// }
 
-function timeUpdater( json, timeStamp, timeObject ){
+// function timeUpdater( json, timeStamp, timeObject ){
 
-    /* If time is in the future update time regularly */
-    if( json.content.is_tentative || timeDifference( timeStamp ) > 0 ){
+//     /* If time is in the future update time regularly */
+//     if( json.content.is_tentative || timeDifference( timeStamp ) > 0 ){
 
-        /* update on initialization */
-        timeObject.innerHTML = updateTime( timeStamp, "launch" );
+//         /* update on initialization */
+//         timeObject.innerHTML = updateTime( timeStamp, "launch" );
 
-        /* Define an updater to be called every second */
-        var updater = setInterval( function(){
+//         /* Define an updater to be called every second */
+//         var updater = setInterval( function(){
 
-            /* update time */
-            timeObject.innerHTML =  updateTime(timeStamp, "launch" );
+//             /* update time */
+//             timeObject.innerHTML =  updateTime(timeStamp, "launch" );
 
-            /* If the time is in the past, set time to timeStamp and cancel updater */
-            if ( timeDifference( timeStamp ) <= 0 ){
+//             /* If the time is in the past, set time to timeStamp and cancel updater */
+//             if ( timeDifference( timeStamp ) <= 0 ){
 
-                clearInterval( updater );
-                timeObject.innerHTML = timeStamp;
-            }
-        }, 200 );
-    }
-    /* Time is in the past, initialize timeObject to timeStamp */
-    else {
-        timeObject.innerHTML = initializeTime( json, timeStamp );
-    }
+//                 clearInterval( updater );
+//                 timeObject.innerHTML = timeStamp;
+//             }
+//         }, 200 );
+//     }
+//     /* Time is in the past, initialize timeObject to timeStamp */
+//     else {
+//         timeObject.innerHTML = initializeTime( json, timeStamp );
+//     }
 
-}
+// }
