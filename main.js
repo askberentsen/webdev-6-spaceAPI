@@ -195,11 +195,13 @@ function createNavigation( json ){
 function createSections( json ){
 
     /* If several sections are available, iterate through that, else iterate once with key "normal" */
-    let population = json.info.sections || ["normal"];
+    let population = json.info.sections || {"normal":"normal"};
 
     let nodeList = [];
 
-    for ( let type of population ){
+    /* Iterate through population and create sections */
+    for ( let type in population ){
+        let typeInfo = population[ type ];
 
         let relevantJson = limitJson( json, type );
 
@@ -216,7 +218,54 @@ function createSections( json ){
 
         /* Populate node */
 
-        section.innerHTML = relevantJson.details || relevantJson.explanation;
+        switch ( type ){
+            case "all":
+                /* Define Table */
+                let table = document.createElement("table");
+
+                /* Define Collumn headers */
+                let collumnHeader = document.createElement("tr");
+
+                for ( let name in typeInfo ){
+
+                    let header = document.createElement("th");
+                    header.innerHTML = name;
+                    collumnHeader.appendChild( header );
+                }
+                table.appendChild(collumnHeader);
+
+                /* Define Table items */
+                for ( let item of relevantJson ){
+
+                    /* Define Row */
+                    let row = document.createElement("tr");
+
+                    for ( let cellType in population[ type ] ){
+                        let cellItem = population[ type ][ cellType ];
+                        let cell;
+
+                        if ( cellType === "Launches" || cellType === "Title" || cellType === "Articles" ){
+                            cell = document.createElement( "th" );
+                        }
+                        else {
+                            cell = document.createElement( "td" );
+                        }
+
+                        let cellText = item[ cellItem ];
+                        cell.innerHTML = cellText;
+                        row.appendChild(cell);
+
+                    }
+
+                    table.appendChild( row );
+                }
+                section.appendChild( table );
+                break;
+            default:
+                section.innerHTML = relevantJson.details || relevantJson.explanation;
+                break;
+        }
+
 
     }
     return nodeList;
