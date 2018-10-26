@@ -85,9 +85,11 @@ async function init(){
 
 function load( completion ){
     document.getElementById("loading_animation") .innerHTML = completion + "%";
+    document.body.dataset.loading = completion;
 }
 function finish( response ){
     document.getElementById("loading").outerHTML = "";
+    delete document.body.dataset.loading;
     return response;
 }
 
@@ -101,7 +103,9 @@ function main( jsonArray ){
 
     for( let json of jsonArray ){
 
-        main.appendChild( writeArticle( json ) );
+        let article = writeArticle ( json );
+        main.appendChild( article );
+        initializeArticle( article );
 
     }
 
@@ -129,7 +133,7 @@ function writeArticle( json ){
     }
     article.appendChild( footer );
 
-    // initializeArticle( article, json );
+    
 
     return article;
 
@@ -156,6 +160,7 @@ function createBanner( json ){
     
     /* Populate nodes */
     title.innerHTML = json.info.title || json.content.title || json.content.name || json.content.mission_name;
+    subtitle.id = json.info.id + "_subtitle";
 
     /* Return node */
     return banner;
@@ -176,12 +181,12 @@ function createNavigation( json ){
             navigation.appendChild( menuItem );
 
             /* Populate node */
-            menuItem.onclick                = switchSection                ;
-            menuItem.innerHTML              = section                      ;
-            menuItem.dataset.selected       = false                        ;
-            menuItem.dataset.targetId       = json.info.id + "_" + section ;
-            menuItem.dataset.targetName     = json.info.id                 ;
-            menuItem.setAttribute ( "name",   json.info.id + "_button"    );
+            menuItem.onclick                = function(){ switchSection( this )};
+            menuItem.innerHTML              = section                           ;
+            menuItem.dataset.selected       = false                             ;
+            menuItem.dataset.targetId       = json.info.id + "_" + section      ;
+            menuItem.dataset.targetName     = json.info.id                      ;
+            menuItem.setAttribute ( "name",   json.info.id + "_button"    )     ;
         }
 
         return navigation;
@@ -303,6 +308,12 @@ function createTablerow( metadata, arg ){
     return row;
 
 }
+function initializeArticle( article ){
+    let button = article.getElementsByTagName("button");
+    if ( button[0] ){
+        switchSection( button[0] );
+    }
+}
 
 function getNested( object, accessors ){
 
@@ -387,12 +398,13 @@ function createFooter( json ){
     return footer;
 }
 
-function switchSection( evt ){
+function switchSection( caller ){
 
     /* Get sections of article */
-    let selectedSection    = document.getElementById   ( this.dataset.targetId   );
-    let unselectedSections = document.getElementsByName( this.dataset.targetName );
-    let unselectedButtons  = document.getElementsByName( this.name               );
+    let selectedSection    = document.getElementById   ( caller.dataset.targetId   );
+    let unselectedSections = document.getElementsByName( caller.dataset.targetName );
+    let unselectedButtons  = document.getElementsByName( caller.name               );
+    let subtitle           = document.getElementById   ( caller.dataset.targetName + "_subtitle" );
 
     /* For each section that isn't selected, hide */
     for ( let node of unselectedSections ){
@@ -404,7 +416,8 @@ function switchSection( evt ){
     }
     /* Show selected section and select button */
     selectedSection.dataset.visible = true;
-    this.dataset.selected = true;
+    caller.dataset.selected = true;
+    subtitle.innerHTML = " - " + caller.innerHTML;
 }
 
 function limitJson( json, type ){
