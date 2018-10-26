@@ -14,7 +14,8 @@
 			"id": "upcomming_launch",
 			"sections": { 
 				"next":"launch", 
-				"all": {"Launches":"mission_name", "Flight number": "flight_number", "Launch date": "launch_date_utc","Links":"links"} },
+				"all": "all"
+			},
 			"title": "Launches"
 		},
 		"cache": "spacex_ships_latest.dat",
@@ -40,9 +41,11 @@
 		"info": {
 			"domain": "SpaceX",
 			"type": "library",
+			"id": "history",
 			"sections": { 
 				"newest": "article", 
-				"all": {"Articles":"title","Flight number": "flight_number", "Date":"event_date_utc", "Links":"links"} },
+				"all": "all"
+			},
 			"title": "History"
 		},
 		"cache": "spacex_history_latest.dat",

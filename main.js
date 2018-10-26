@@ -163,15 +163,11 @@ function createBanner( json ){
 
 function createNavigation( json ){
 
-    /* If navigation is not needed, return nothing */
-    if ( !( json.info.sections && json.info.sections.length > 1) ){
-        return null;
-    }
-    else {
+    if ( json.info.sections ) {
         /* Define nav node */
         let navigation = document.createElement("nav");
 
-        for( let section of json.info.sections ){
+        for( let section in json.info.sections ){
 
             /* Define menu item node */
             let menuItem = document.createElement("button");
@@ -190,6 +186,7 @@ function createNavigation( json ){
 
         return navigation;
     }
+    return null;
 }
 
 function createSections( json ){
@@ -221,45 +218,18 @@ function createSections( json ){
         switch ( type ){
             case "all":
                 /* Define Table */
-                let table = document.createElement("table");
+                let table = createTable( relevantJson, json.info.id );
 
-                /* Define Collumn headers */
-                let collumnHeader = document.createElement("tr");
-
-                for ( let name in typeInfo ){
-
-                    let header = document.createElement("th");
-                    header.innerHTML = name;
-                    collumnHeader.appendChild( header );
-                }
-                table.appendChild(collumnHeader);
-
-                /* Define Table items */
-                for ( let item of relevantJson ){
-
-                    /* Define Row */
-                    let row = document.createElement("tr");
-
-                    for ( let cellType in population[ type ] ){
-                        let cellItem = population[ type ][ cellType ];
-                        let cell;
-
-                        if ( cellType === "Launches" || cellType === "Title" || cellType === "Articles" ){
-                            cell = document.createElement( "th" );
-                        }
-                        else {
-                            cell = document.createElement( "td" );
-                        }
-
-                        let cellText = item[ cellItem ];
-                        cell.innerHTML = cellText;
-                        row.appendChild(cell);
-
-                    }
-
-                    table.appendChild( row );
-                }
                 section.appendChild( table );
+
+                break;
+            case "next":
+            case "first":
+            case "oldest":
+                break;
+            case "latest":
+            case "last":
+            case "newest":
                 break;
             default:
                 section.innerHTML = relevantJson.details || relevantJson.explanation;
@@ -270,6 +240,134 @@ function createSections( json ){
     }
     return nodeList;
 }
+
+function createTable ( json, type ){
+
+    let metadata = getMetadata( type );
+    let table = document.createElement("table");
+
+    let header = createTablerow( metadata, "th" );
+    table.appendChild( header );
+
+    for ( let item of json ){
+
+        let row = createTablerow( metadata, item );
+        table.appendChild( row );
+
+    }
+    return table;
+}
+
+function createTablerow( metadata, arg ){
+
+    let row = document.createElement("tr");
+
+    for ( let item of metadata ){
+
+        let cell;
+
+        if ( arg === "th"){
+            cell = document.createElement( "th" );
+            cell.innerHTML = item.name;
+        }
+        else {
+            cell = document.createElement( item.cellType );
+            let textNode;
+            let member = getNested( arg, item.key ) || "";
+            let alt = getNested( arg, item.alt ) || item.alt;
+    
+            if ( item.type ){
+                textNode = document.createElement( item.type );
+                cell.appendChild( textNode );
+            }
+            else {
+                textNode = cell;
+            }
+    
+            if ( item.alt ){
+                textNode.title = alt;
+            }
+    
+            if ( item.modifier ){
+                item.modifier( textNode, member );
+            }
+            else {
+                textNode.innerHTML = member;
+            }
+        }
+
+        row.appendChild( cell );
+    }
+    return row;
+
+}
+function getNested( object, accessors ){
+
+    /* Get nested members from object, using a string */
+    /* If a member isn't found, return undefined */
+    if ( accessors ){
+        let path = [object, ...accessors.split(".") ];
+        return get( path );
+    }
+}
+function get( accessors ){
+
+    /* Get nested members from an array of accessors */
+    return accessors.reduce( ( path, accessor ) => ( path && path[ accessor ] ) ? path[ accessor ] : undefined );
+}
+
+function getMetadata( type ){
+
+    const metadata = {
+        "upcomming_launch":[
+            { name: "Launches",      key: "mission_name",          cellType: "th", type: null,   alt: null,                         modifier: null        },
+            { name: "Flight number", key: "flight_number",         cellType: "td", type: null,   alt: null,                         modifier: null        },
+            { name: "Rocket",        key: "rocket.rocket_name",    cellType: "td", type: null,   alt: null,                         modifier: null        },
+            { name: "Launch site",   key: "launch_site.site_name", cellType: "td", type: "abbr", alt: "launch_site.site_name_long", modifier: null        },
+            { name: "Launch date",   key: "launch_date_utc",       cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
+            { name: "Article",       key: "links",                 cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
+        ],
+        "history":[
+            { name: "Article",       key: "title",                 cellType: "th", type: null,   alt: null,                         modifier: null        },
+            { name: "Flight number", key: "flight_number",         cellType: "td", type: null,   alt: null,                         modifier: null        },
+            { name: "Date",          key: "event_date_utc",        cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
+            { name: "Article",       key: "links",                 cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
+        ]
+    }
+    return metadata[ type ];
+}
+
+function formatTime( node, arg ){
+
+    /* Define date */
+    let date = new Date( arg );
+
+    /* Populate node */
+    node.dateTime = arg;
+    node.innerHTML = date.getUTCDate() + "/" + date.getUTCMonth() + "/" + date.getUTCFullYear();
+}
+function formatLinks( node, linkList ){
+
+    /* Iterate through link list and append defined links */
+    for ( let href in linkList ){
+
+        /* Control that link is defined, and isn't an array */
+        if ( linkList[ href ] && !( linkList[ href ] instanceof Array ) ){
+
+            /* Define node */
+            let link = document.createElement("a");
+
+            /* Populate node */
+            link.href = linkList[ href ];
+            link.title = linkList[ href ];
+            link.innerHTML = href.replace( "_", " " );
+
+            /* Append node */
+            node.appendChild( link );
+        }
+    }
+}
+
 
 function createFooter( json ){
 
@@ -318,320 +416,3 @@ function limitJson( json, type ){
             return json.content;
     }
 }
-
-
-
-
-
-
-
-
-
-    // /* If the json calls for sections, create these sections */
-    // if ( json.info.sections && json.info.sections.length > 1 ){
-
-    //     navigation = document.createElement("nav");
-    //     article.appendChild( navigation );
-
-    //     for( let i = 0; i < json.info.sections.length; ++i ){
-
-    //         let sectionName = json.info.sections[i];
-
-    //         /* Add button, and the onclick event that updates the visible section, and changes the selected button */
-
-    //         let menuItem = jButton( sectionName, function(){
-    //             updateArticle( article, index => index === i );
-    //         } );
-            
-    //         navigation.appendChild( menuItem );
-            
-    //         /* Instantiate a new section */
-    //         let section = jSection( json, sectionName )
-
-    //         /* Add the sectionname to the classlist so it can be found by other functions */
-    //         section.classList.add( sectionName );
-
-    //         /* Actual contents of section */
-    //         article.appendChild( section );
-
-    //     }
-    //     updateArticle( article, index => index === 0 );
-    // }
-    // else {
-    //     let section = jSection( json, "normal");
-
-    //     article.appendChild( section );
-    // }
-    // return article;
-//}
-
-function jSection( json, type ){
-    let section = document.createElement("section");
-    let header;
-    // if ( type !== "normal"){
-    //     header = document.createElement("h2");
-    //     section.appendChild(header);
-    // }
-
-    switch ( type ){
-        case "normal":
-            break;
-        case "next": //do something
-        case "first":
-            section.dataset.timestamp = timeStamp( json.content[0] );
-            //section.innerHTML = "next article";
-            break;
-        case "all": //do something
-            //section.innerHTML = "all article";
-            break;
-        case "newest": //do something
-        case "latest":
-        case "last":
-            section.dataset.timestamp = timeStamp( json.content[ json.content.length - 1 ] );
-            //section.innerHTML = "newest article";
-            break;
-        default:
-            //section.innerHTML = "normal article";
-            break;
-
-    }
-    return section;
-}
-
-function jTitle( json ){
-
-    /* Instantiate nodes */
-    let banner = document.createElement("header");
-    let title = document.createElement("h2");
-    let subtitle = document.createElement("span");
-    let time = document.createElement("time");
-
-
-    banner.classList.add("article_header");
-    subtitle.classList.add("subtitle");
-    time.classList.add("timestamp");
-    time.dataset.visible = false;
-    time.dateTime = timeStamp( json.content );
-
-    /*  Extract title from json.  */
-    /*  Different API responses have different structure, so if 
-        none are found where expected, default to domain name  */
-    let titleText = 
-        json.info.title ||
-        json.content.title || 
-        json.content.mission_name || 
-        json.content.name || 
-        json.content.ship_name;
-
-    /*  Append title to banner */
-    title.innerHTML = titleText;
-    banner.appendChild( title );
-    banner.appendChild( time );
-    title.appendChild( subtitle );
-
-    return banner;
-}
-
-function jButton( innerHTML, handler ){
-    let button = document.createElement("button");
-    button.innerHTML = innerHTML;
-    button.onclick = handler;
-    return button;
-}
-function updateArticle( article, conditional ){
-
-    let target = updateAttribute( article.getElementsByTagName("section"), "dataset.visible", conditional );
-    updateAttribute( article.getElementsByTagName("button"), "dataset.selected", conditional );
-    updateAttribute( article.getElementsByTagName("button"), "dataset.selected", conditional );
-
-    let subtitle = article.getElementsByClassName("subtitle")[0];
-    let time = article.getElementsByClassName("timestamp")[0];
-
-    if ( target[0].dataset.timestamp ){
-        time.dataset.visible = true;
-        time.innerHTML = target[0].dataset.timestamp;
-
-        
-    }
-    else {
-        time.dataset.visible = false;
-    }
-
-
-}
-
-function updateAttribute( set, attributes, conditional ){
-
-    let active = [];
-
-    for ( let i = 0; i < set.length; ++i ){
-
-        let selected = conditional( i );
-
-        set[ i ][ attributes ] = selected;
-
-        if ( selected ){
-            active.push( set[i] )
-        }
-
-    }
-    return active;
-}
-
-function timeStamp( json ){
-
-    return json.launch_date_utc ||
-        json.event_date_utc ||
-        json.date ||
-        json.year_built;
-}
-
-
-
-
-/*  Write summary if available  */
-function jSummary( article, json ){
-
-    var text = json.content.details || json.content.explanation;
-
-    if ( text ){
-        var summary = document.createElement("p");
-        summary.innerHTML = text;
-        article.appendChild( summary );
-    }
-
-}
-//////////////////////////////////////
-//          Media functions         //
-//////////////////////////////////////
-
-/*  Add image if available  */
-function jMedia( article, json ){
-
-    var media;
-    
-    /*  Extract image url(s) from json file where expected */
-    var image = json.content.image || json.content.url || json.content.hdurl;
-    var imageArray = json.content.flickr_images || (json.content.links ? json.content.links.flickr_images : undefined );
-
-    /*  Check if json contains several images */
-    if( imageArray && imageArray.length > 0 ){
-
-        media = addImages("", ...imageArray);
-
-    }
-    /*  Check if a single image was found instead */
-    else if ( json.content.media_type === "image" || json.content.image ){
-
-        media = addImages( "", image );
-
-    }
-
-    /*  If an image was found, append media to article */
-    if( media ){
-        article.appendChild( media );
-    }
-}
-
-function addImages( caption, ...images ){
-    var figure = document.createElement("figure");
-
-    for( var i = 0; i < images.length; ++i ){
-
-        var image = document.createElement("img");
-        image.src = images[i];
-        image.alt = "";
-
-        figure.appendChild( image );
-    }
-
-    /* Use truthy to check if caption can be added */
-    if ( caption ){
-
-        var figCaption = document.createElement("figcaption");
-        figCaption.innerHTML = caption;
-    
-        figure.appendChild(figCaption);
-
-    }
-
-    return figure;
-}
-
-////////////////////////////////////////////
-//            Time functions              //
-////////////////////////////////////////////
-
-
-// function updateTime( timeStamp ){
-
-//     var date = new Date( timeDifference(timeStamp) );
-
-//     var output = "";
-//     var cascade = false;
-
-//     var formats = { 
-//         years: date.getUTCFullYear() - 1970,
-//         months: date.getUTCMonth(),
-//         days: date.getUTCDate(),
-//         hours: date.getUTCHours(),
-//         minutes: date.getUTCMinutes()
-//     }
-
-//     for( var key in formats ){
-//         if ( formats[ key ] > 0 || cascade ){
-//             cascade = true;
-//             output += formats[ key ] + " " + key + ", ";
-//         }
-//     }
-//     output += date.getUTCSeconds() + " seconds left";
-//     return output;
-// }
-
-// function timeDifference( from, to = Date.now() ){
-//     return new Date( from ) - new Date(to);
-// }
-
-// function initializeTime( json, timeStamp ){
-//     var date = new Date( timeStamp );
-
-//     /* Spaghetti date extracter :^) */
-//     var relevantTime = String( date.getDate() ).padStart(2,0) 
-//         + "/" + String( date.getMonth() ).padStart(2,0) 
-//         + "/" + date.getFullYear();
-
-
-//     return (
-//         json.content.launch_date_utc ? "Launched: " + relevantTime : undefined ) ||
-//         (json.content.year_built ? "Built in " + date.getFullYear() : undefined) ||
-//         "Date: " + relevantTime;
-// }
-
-// function timeUpdater( json, timeStamp, timeObject ){
-
-//     /* If time is in the future update time regularly */
-//     if( json.content.is_tentative || timeDifference( timeStamp ) > 0 ){
-
-//         /* update on initialization */
-//         timeObject.innerHTML = updateTime( timeStamp, "launch" );
-
-//         /* Define an updater to be called every second */
-//         var updater = setInterval( function(){
-
-//             /* update time */
-//             timeObject.innerHTML =  updateTime(timeStamp, "launch" );
-
-//             /* If the time is in the past, set time to timeStamp and cancel updater */
-//             if ( timeDifference( timeStamp ) <= 0 ){
-
-//                 clearInterval( updater );
-//                 timeObject.innerHTML = timeStamp;
-//             }
-//         }, 200 );
-//     }
-//     /* Time is in the past, initialize timeObject to timeStamp */
-//     else {
-//         timeObject.innerHTML = initializeTime( json, timeStamp );
-//     }
-
-// }
