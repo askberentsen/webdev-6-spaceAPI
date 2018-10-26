@@ -223,14 +223,6 @@ function createSections( json ){
                 section.appendChild( table );
 
                 break;
-            case "next":
-            case "first":
-            case "oldest":
-                break;
-            case "latest":
-            case "last":
-            case "newest":
-                break;
             default:
                 section.innerHTML = relevantJson.details || relevantJson.explanation;
                 break;
@@ -243,21 +235,30 @@ function createSections( json ){
 
 function createTable ( json, type ){
 
+    /* Get the metadata bout the json object */
     let metadata = getMetadata( type );
-    let table = document.createElement("table");
 
+    /* Define nodes */
+    let table = document.createElement("table");
     let header = createTablerow( metadata, "th" );
+
+    /* Populate attributes */
+    header.classList.add("table_header");
+
+    /* Append header */
     table.appendChild( header );
 
     for ( let item of json ){
-
+        
+        /* Define nodes */
         let row = createTablerow( metadata, item );
+
+        /* Append nodes */
         table.appendChild( row );
 
     }
     return table;
 }
-
 function createTablerow( metadata, arg ){
 
     let row = document.createElement("tr");
@@ -296,11 +297,13 @@ function createTablerow( metadata, arg ){
             }
         }
 
+        cell.dataset.type = item.name;
         row.appendChild( cell );
     }
     return row;
 
 }
+
 function getNested( object, accessors ){
 
     /* Get nested members from object, using a string */
@@ -320,18 +323,20 @@ function getMetadata( type ){
 
     const metadata = {
         "upcomming_launch":[
-            { name: "Launches",      key: "mission_name",          cellType: "th", type: null,   alt: null,                         modifier: null        },
-            { name: "Flight number", key: "flight_number",         cellType: "td", type: null,   alt: null,                         modifier: null        },
-            { name: "Rocket",        key: "rocket.rocket_name",    cellType: "td", type: null,   alt: null,                         modifier: null        },
-            { name: "Launch site",   key: "launch_site.site_name", cellType: "td", type: "abbr", alt: "launch_site.site_name_long", modifier: null        },
-            { name: "Launch date",   key: "launch_date_utc",       cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
-            { name: "Article",       key: "links",                 cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
+            { name: "Launches",      key: "mission_name",            cellType: "th", type: null,   alt: null,                         modifier: null        },
+            { name: "Flight number", key: "flight_number",           cellType: "td", type: null,   alt: null,                         modifier: null        },
+            { name: "Rocket",        key: "rocket.rocket_name",      cellType: "td", type: null,   alt: null,                         modifier: null        },
+            { name: "Payload",       key: "rocket.second_stage.payloads.0.payload_type",    cellType: "td", type: null,   alt: null,  modifier: null        },
+            { name: "Payload mass",  key: "rocket.second_stage.payloads.0.payload_mass_kg", cellType: "td", type: null,   alt: null,  modifier: null        },
+            { name: "Launch site",   key: "launch_site.site_name",   cellType: "td", type: "abbr", alt: "launch_site.site_name_long", modifier: null        },
+            { name: "Launch date",   key: "launch_date_utc",         cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
+            { name: "Links",         key: "links",                   cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
         ],
         "history":[
-            { name: "Article",       key: "title",                 cellType: "th", type: null,   alt: null,                         modifier: null        },
-            { name: "Flight number", key: "flight_number",         cellType: "td", type: null,   alt: null,                         modifier: null        },
-            { name: "Date",          key: "event_date_utc",        cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
-            { name: "Article",       key: "links",                 cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
+            { name: "Article",       key: "title",                   cellType: "th", type: null,   alt: null,                         modifier: null        },
+            { name: "Flight number", key: "flight_number",           cellType: "td", type: null,   alt: null,                         modifier: null        },
+            { name: "Date",          key: "event_date_utc",          cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
+            { name: "Article",       key: "links",                   cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
         ]
     }
     return metadata[ type ];
