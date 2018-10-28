@@ -172,7 +172,9 @@ function createNavigation( json ){
         /* Define nav node */
         let navigation = document.createElement("nav");
 
-        for( let section in json.info.sections ){
+        for( let key in json.info.sections ){
+
+            let section = json.info.sections[ key ];
 
             /* Define menu item node */
             let menuItem = document.createElement("button");
@@ -202,8 +204,9 @@ function createSections( json ){
     let nodeList = [];
 
     /* Iterate through population and create sections */
-    for ( let type in population ){
-        let typeInfo = population[ type ];
+    for ( let key in population ){
+
+        let type = population[ key ];
 
         let relevantJson = limitJson( json, type );
 
@@ -220,13 +223,19 @@ function createSections( json ){
 
         /* Populate node */
 
-        switch ( type ){
+        switch ( key ){
             case "all":
                 /* Define Table */
                 let table = createTable( relevantJson, json.info.id );
 
                 section.appendChild( table );
 
+                break;
+            case "next_launch":
+
+                createNextLaunchSection( section, relevantJson, json.info.id );
+
+               
                 break;
             default:
                 section.innerHTML = relevantJson.details || relevantJson.explanation;
@@ -236,6 +245,84 @@ function createSections( json ){
 
     }
     return nodeList;
+}
+
+function createNextLaunchSection( section, json, type ){
+
+     /* Define nodes */
+     let header        = document.createElement( "h3"      );
+     let countdown     = document.createElement( "time"    );
+     let description   = document.createElement( "p"       );
+     let details       = document.createElement( "details" );
+     let detailSummary = document.createElement( "summary" );
+     let links         = document.createElement( "details" );
+     let linkSummary   = document.createElement( "summary" );
+
+     /* Append nodes */
+     section.appendChild( header        );
+     section.appendChild( countdown     );
+     section.appendChild( description   );
+     section.appendChild( details       );
+     section.appendChild( links         );
+     details.appendChild( detailSummary );
+     links  .appendChild( linkSummary   );
+
+     /* Populate nodes */
+
+     header.innerHTML = json.mission_name;
+     description.innerHTML = json.details;
+     countdown.dateTime = json.launch_date_utc;
+     detailSummary.innerHTML = "Details";
+     linkSummary.innerHTML = "Links";
+
+     let searches = ["flight_number", "rocket_name", "orbit", "site_name_long","landing_vehicle",
+         "payload_type","payload_mass_kg","manufacturer","nationality","customers"];
+     
+     for ( let keyword of searches ){
+         let item = deepGetProperty( json, keyword );
+
+         if ( item && !( item instanceof Array ) ){
+             let p = document.createElement("p");
+             let span = document.createElement("span");
+
+             span.dataset.property_name = item.property;
+             
+             let propertyName = item.property.replace(/[_]/g," ");
+             
+             span.innerHTML = item.value;
+             p.innerHTML = propertyName[0].toUpperCase() + propertyName.slice(1) + ": ";
+             details.appendChild(p);
+             p.appendChild( span );
+         }
+
+
+     }
+
+     /* Iterate over relevantJson.links and find defined links */
+     for ( let key in json.links ){
+         let url = json.links[ key ];
+         /* If url exists, add link */
+         if ( url ){
+             /* If property is an array, iterate through that */
+             if ( url instanceof Array ){
+                 for ( let i = 0; i < url.length; ++i ){
+                     let link = createElement("a");
+                     link.href = url[i];
+                     link.innerHTML = url[i];
+                     links.appendChild( link );
+                 }
+             }
+             /* Property is defined and not an array */
+             else{
+                 let link = document.createElement("a");
+                 link.href = url;
+                 link.innerHTML = key.replace("_"," ");
+                 links.appendChild( link );
+             }
+         }
+
+     }
+    
 }
 
 function createTable ( json, type ){
@@ -315,6 +402,43 @@ function initializeArticle( article ){
     }
 }
 
+/* Find the first instance of a property in an object */
+function deepGetProperty( arg, propertyname, breadcrumbs = [] ){
+
+    /*  Check if property was found, if it was found, 
+        return key, value and breadcrumbs*/
+    if ( arg !== null && ( getNested(arg, propertyname) !== undefined)){
+
+        breadcrumbs.push( propertyname );
+        return { 
+            property: propertyname, 
+            value   : arg[ propertyname ],
+            breadcrumbs: breadcrumbs
+        }
+    }
+    /* Property was not found on this level, search deeper */
+    else if ( arg instanceof Object ){
+        
+        for ( let key in arg ){
+
+            /* Make new breadcrumbs*/
+            let newBreadcrumbs = breadcrumbs.slice();
+            newBreadcrumbs.push( key );
+
+            /* Recursively get property */
+            let output = deepGetProperty( arg[ key ], propertyname, newBreadcrumbs );
+
+            /* If something was found, return output*/
+            if ( output !== undefined ){
+                return output;
+            }
+        }
+
+    }
+    /* Nothing was found on this level or deeper */
+    return undefined
+}
+
 function getNested( object, accessors ){
 
     /* Get nested members from object, using a string */
@@ -330,27 +454,40 @@ function get( accessors ){
     return accessors.reduce( ( path, accessor ) => ( path && path[ accessor ] ) ? path[ accessor ] : undefined );
 }
 
-function getMetadata( type ){
+function getMetadata( type, accessor = "primary", ...args ){
 
     const metadata = {
-        "upcomming_launch":[
-            { name: "Launches",      key: "mission_name",            cellType: "th", type: null,   alt: null,                         modifier: null        },
-            { name: "Flight number", key: "flight_number",           cellType: "td", type: null,   alt: null,                         modifier: null        },
-            { name: "Rocket",        key: "rocket.rocket_name",      cellType: "td", type: null,   alt: null,                         modifier: null        },
-            { name: "Payload",       key: "rocket.second_stage.payloads.0.payload_type",    cellType: "td", type: null,   alt: null,  modifier: null        },
-            { name: "Payload mass",  key: "rocket.second_stage.payloads.0.payload_mass_kg", cellType: "td", type: null,   alt: null,  modifier: null        },
-            { name: "Launch site",   key: "launch_site.site_name",   cellType: "td", type: "abbr", alt: "launch_site.site_name_long", modifier: null        },
-            { name: "Launch date",   key: "launch_date_utc",         cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
-            { name: "Links",         key: "links",                   cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
-        ],
-        "history":[
-            { name: "Article",       key: "title",                   cellType: "th", type: null,   alt: null,                         modifier: null        },
-            { name: "Flight number", key: "flight_number",           cellType: "td", type: null,   alt: null,                         modifier: null        },
-            { name: "Date",          key: "event_date_utc",          cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
-            { name: "Article",       key: "links",                   cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
-        ]
+        "upcomming_launch":{
+            "primary":[
+                { name: "Launches",      key: "mission_name",            cellType: "th", type: null,   alt: null,                         modifier: null        },
+                { name: "Rocket",        key: "rocket.rocket_name",      cellType: "td", type: null,   alt: null,                         modifier: null        },
+                { name: "Payload",       key: "rocket.second_stage.payloads.0.payload_type",    cellType: "td", type: null,   alt: null,  modifier: null        },
+                { name: "Launch site",   key: "launch_site.site_name",   cellType: "td", type: "abbr", alt: "launch_site.site_name_long", modifier: null        },
+                { name: "Launch date",   key: "launch_date_utc",         cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
+                { name: "Links",         key: "links",                   cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
+            ],
+            "secondary":[
+
+            ]
+        },
+        "history":{
+            "primary":[
+                { name: "Article",       key: "title",                   cellType: "th", type: null,   alt: null,                         modifier: null        },
+                { name: "Flight number", key: "flight_number",           cellType: "td", type: null,   alt: null,                         modifier: null        },
+                { name: "Date",          key: "event_date_utc",          cellType: "td", type: "time", alt: null,                         modifier: formatTime  },
+                { name: "Article",       key: "links",                   cellType: "td", type: null,   alt: null,                         modifier: formatLinks }
+            ],
+            "secondary":[
+
+            ]
+        }
     }
-    return metadata[ type ];
+    var output = [];
+    output.push( ... metadata[ type ][ accessor ] );
+    for ( let argument of args ){
+        output.push( ...( metadata[ type ][ argument ] ) );
+    }
+    return output;
 }
 
 function formatTime( node, arg ){
