@@ -118,19 +118,20 @@ body > header {
   top: 0;
   left: 0;
   width: 100%;
+  padding: 1rem 0;
   color: #ffffff;
-  padding: 1rem 2rem;
   transition-duration: 0.1s;
   font-size: 1.9rem;
 }
 
 body > header h1 {
+  padding: 0 1rem;
   font-size: 1em;
   transition-duration: inherit;
 }
 
 body > header[data-scroll="true"] {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0;
 }
 
 body > header[data-scroll="true"] h1 {
@@ -272,7 +273,7 @@ p, a, span, time, details, summary {
 }
 
 header time, figcaption, section > address {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: #bbbbbb;
 }
 

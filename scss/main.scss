@@ -5,7 +5,7 @@
 $header-font-size: 1.9rem;
 $subheader-font-size: 1.7rem;
 $content-font-size: 1rem;
-$sub-font-size: 0.7rem;
+$sub-font-size: 0.8rem;
 $backgroung-images: (
     1: url("../resources/images/apod.jpg"),
     2: url("../resources/images/looking_to_space.jpg"),
@@ -25,16 +25,17 @@ body {
         top: 0;
         left: 0;
         width: 100%;
+        padding: 1rem 0;
         color: $font-dark;
-        padding: 1rem 2rem;
         transition-duration: 0.1s;
         font-size: $header-font-size;
         h1 {
+            padding: 0 1rem;
             font-size: 1em;
             transition-duration: inherit;
         }
         &[data-scroll="true"]{
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0;
             h1{
                 font-size: 0.4em;
             }
