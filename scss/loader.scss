@@ -1,0 +1,11 @@
+@import "mixins";
+#loading {
+    display: block;
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    background-image: url("../resources/images/loading.jpg");
+    @include backdrop( $background-light, 1rem, max-content );
+    padding-top: 45vh;
+    cursor: wait;
+}

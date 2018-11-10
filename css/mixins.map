@@ -1,0 +1,14 @@
+{
+	"version": 3,
+	"file": "../scss/mixins.css",
+	"sources": [
+		"../scss/mixins.scss",
+		"../scss/colors.scss"
+	],
+	"sourcesContent": [
+		"@import \"colors\";\r\n\r\n@mixin backdrop( $primary-color, $image, $padding: 0.7em, $cover: null ) {\r\n    position: relative;\r\n    background-image: $image;\r\n    background-attachment: fixed;\r\n    background-repeat: no-repeat;\r\n    background-size: cover;\r\n    &>*{\r\n        position: relative;\r\n        z-index: 1;\r\n    }\r\n    @if ( $cover != max-content ){\r\n        &::before {\r\n            position: absolute;\r\n            display: block;\r\n            content: \"\";\r\n            top: $padding;\r\n            left: $padding;\r\n            bottom: $padding;\r\n            right: $padding;\r\n            z-index: 0;\r\n            @include transparent-background-color( $primary-color, 0.7 );\r\n        }\r\n    }\r\n    @else {\r\n        &>*{\r\n            padding: $padding;\r\n            display: block;\r\n            margin: auto;\r\n            width: max-content;\r\n            @include transparent-background-color( $primary-color, 0.7 );\r\n        }\r\n    }\r\n}",
+		"$primary-color-light: #eeeeee;\r\n$secondary-color-light: #dddddd;\r\n$font-light: #000000;\r\n$background-light: #eeeeee;\r\n\r\n$primary-color-dark: #111111;\r\n$secondary-color-dark: #222222;\r\n$font-dark: #ffffff;\r\n$background-dark: #111111;\r\n\r\n@mixin transparent-color( $color, $a ) {\r\n    color: $color;\r\n    color: rgba( $color, $a);\r\n}\r\n@mixin transparent-background-color( $color, $a ) {\r\n    background-color: $color;\r\n    background-color: rgba( $color, $a);\r\n}"
+	],
+	"mappings": "",
+	"names": []
+}

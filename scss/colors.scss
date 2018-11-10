@@ -1,0 +1,20 @@
+$primary-color-light: #eeeeee;
+$secondary-color-light: #dddddd;
+$font-light: #000000;
+$background-light: #eeeeee;
+$sub-light: #444444;
+
+$primary-color-dark: #111111;
+$secondary-color-dark: #222222;
+$font-dark: #ffffff;
+$background-dark: #111111;
+$sub-dark: #bbbbbb;
+
+@mixin transparent-color( $color, $a ) {
+    color: $color;
+    color: rgba( $color, $a);
+}
+@mixin transparent-background-color( $color, $a ) {
+    background-color: $color;
+    background-color: rgba( $color, $a);
+}

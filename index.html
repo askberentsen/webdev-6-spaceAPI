@@ -2,17 +2,47 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>TEST</title>
-		<script src="main.js"></script>
-		<link rel="stylesheet" href="main.css">
+		<meta property="og:author" content="Ask Hetland Berentsen">
+		<meta property="og:img" content="">
+		<meta property="og:title" content="">
+		<meta name="twitter:title" content="">
+		<meta name="twitter:site" content="">
+		<meta name="twitter:description" content="">
+		<meta name="twitter:image" content="">
+		<meta name="twitter:creator" content="">
+		<title>Spacesite 88</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="./scripts/modules/functions.js"></script>
+		<script src="./scripts/modules/date_extension.js"></script>
+		<script src="./scripts/articles.js"></script>
+		<script src="./main.js"></script>
+		<link rel="stylesheet" href="css/main.css">
 	</head>
 	<body data-loading="0">
+		<header id="banner">
+			<h1>Spacesite 88</h1>
+		</header>
 
-		<p id="loading">Fetching information from API <span id="loading_animation">0%</span></p>
-	
-		<main>
+		<p id="loading" role="progressbar">
+			<span role="presentation" class="progressbar_content_wrapper">
+				Fetching information from API <span id="loading_animation">0%</span><br/> this shouldn't take long.
+			</span>
+		</p>
+		<main></main>
 
-		</main>
+		<footer>
+			<p>This project has no affiliation with SpaceX or NASA.</p>
+			<h2>Repositories</h2>
+			<p>Repository: <a href="https://github.com/Krokkoguy/spaceSite">github.com/Krokkoguy/spaceSite</a></p>
+			<p>NASA APOD api: <a href="https://github.com/nasa/apod-api">github.com/nasa/apod-api</a></p>
+			<p>SpaceX api: <a href="https://github.com/r-spacex/SpaceX-API">github.com/r-spacex/SpaceX-API</a></p>
 
+			<address>
+				<h2>Contact</h2>
+				<p>Ask Hetland Berentsen</p>
+				<p>Mail ( school ): <a href="mailto://askhb@hiof.no">askhb@hiof.no</a> </p>
+				<p>Mail ( private ): <a href="mailto://askberentsen@gmail.com">askberentsen@gmail.com</a> </p>
+			</address>
+		</footer>
 	</body>
 </html>

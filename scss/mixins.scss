@@ -1,0 +1,79 @@
+@import "colors";
+
+@mixin backdrop( $primary-color, $padding: 0.7em, $cover: null ) {
+
+    &::before{
+        /*Funky method of covering background*/
+        max-width: 200vw;
+        width: 200vw;
+        left: -50vw;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        display: block;
+        content: "";
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+        z-index: -1;
+    }
+    @if ( $cover != max-content ){
+        padding: $padding *1.6;
+        &::after {
+            position: absolute;
+            display: block;
+            content: "";
+            top: $padding;
+            left: $padding;
+            bottom: $padding;
+            right: $padding;
+            z-index: -1;
+            @include transparent-background-color( $primary-color, 0.8 );
+        }
+    }
+    @else {
+        &>*{
+            padding: $padding;
+            display: block;
+            margin: auto;
+            width: max-content;
+            @include transparent-background-color( $primary-color, 0.8 );
+        }
+    }
+    position: relative;
+    max-width: 1000px;
+    margin: auto;
+
+
+    // position: relative;
+    // background-attachment: fixed;
+    // background-repeat: no-repeat;
+    // background-size: cover;
+    // &>*{
+    //     position: relative;
+    //     z-index: 1;
+    // }
+    // @if ( $cover != max-content ){
+    //     padding: $padding *1.6;
+    //     &::before {
+    //         position: absolute;
+    //         display: block;
+    //         content: "";
+    //         top: $padding;
+    //         left: $padding;
+    //         bottom: $padding;
+    //         right: $padding;
+    //         z-index: 0;
+    //         @include transparent-background-color( $primary-color, 0.8 );
+    //     }
+    // }
+    // @else {
+    //     &>*{
+    //         padding: $padding;
+    //         display: block;
+    //         margin: auto;
+    //         width: max-content;
+    //         @include transparent-background-color( $primary-color, 0.8 );
+    //     }
+    // }
+}

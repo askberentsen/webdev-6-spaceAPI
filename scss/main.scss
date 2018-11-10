@@ -1,0 +1,165 @@
+@import "colors";
+@import "loader";
+@import "mixins";
+@import "details";
+$header-font-size: 1.9rem;
+$subheader-font-size: 1.7rem;
+$content-font-size: 1rem;
+$sub-font-size: 0.7rem;
+$backgroung-images: (
+    1: url("../resources/images/apod.jpg"),
+    2: url("../resources/images/looking_to_space.jpg"),
+    3: url("../resources/images/launch.jpg")
+);
+html {
+    overflow-x: hidden;
+}
+body {
+    background-color: $secondary-color-light;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+    &>header {
+        background-color: $primary-color-dark;
+        position: fixed;
+        z-index: 2;
+        top: 0;
+        left: 0;
+        width: 100%;
+        color: $font-dark;
+        padding: 1rem 2rem;
+        transition-duration: 0.1s;
+        font-size: $header-font-size;
+        h1 {
+            font-size: 1em;
+            transition-duration: inherit;
+        }
+        &[data-scroll="true"]{
+            padding: 0.5rem 1rem;
+            h1{
+                font-size: 0.4em;
+            }
+        }
+    }
+    &>footer {
+        color: $font-light;
+        @include backdrop( $background-light, 1rem );
+        &::before {
+            background-image:  url("../resources/images/footer.jpg");
+        }
+    }
+}
+*{
+    margin: 0;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+article {
+    color: $font-dark;
+    @include backdrop( $background-dark, 1rem );
+    @for $i from 1 through 3 {
+        &:nth-of-type(#{$i})::before {
+            background-image: map-get( $backgroung-images, $i );
+        }
+    }
+    &:first-of-type {
+        padding-top: 5rem;
+        &::after{
+            margin-top: 4rem;
+        }
+    }
+
+    header{
+        color: #49f;
+        border-bottom: 0.3rem solid;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+}
+article>*,footer>*,header>*{
+    max-width: 1000px;
+    margin:auto;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-variant: small-caps;
+}
+h3, footer h2 {
+    border-bottom: 1px solid;
+}
+h2 {
+    font-size: $subheader-font-size
+}
+p, a, span, time, details, summary {
+    font-size: $content-font-size;
+    top: 0;
+    left: 0;
+}
+header time, figcaption, section>address {
+    font-size: $sub-font-size;
+    color: $sub-dark;
+}
+p, figure, .youtube-wrapper {
+    margin: 1rem 0;
+}
+.youtube_wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    padding-top: 20px;
+    height: 0;
+    iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-style: solid;
+        background-color: #000;
+        border-color: #000;
+        border-radius: 7px;
+    }
+}
+figure {
+    display: grid;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #000;
+    border-color: #000;
+    border-radius: 7px;
+    img {
+        position: relative;
+        margin: auto;
+    }
+    figcaption {
+        margin: 15px;
+        color: #fff;
+        grid-column: 1 / -1;
+    }
+    &.image_gallery{
+        grid-template-columns: 1fr;
+        @media only screen and ( min-width: 600px ){
+            grid-template-columns: 1fr 1fr;
+        }
+        @media only screen and ( min-width: 760px ){
+            grid-template-columns: 1fr 1fr 1fr;
+            img:first-of-type{
+                grid-column: 1 / -1;
+                border-radius: 7px;
+            }
+        }
+    }
+}
+article a {
+    display: block;
+    &:link    {color: #99f }
+    &:active  {color: #fff }
+    &:visited {color: #d5c }
+    &:hover {
+        @include transparent-background-color( #424242, 0.7 )
+    }
+}
+a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
