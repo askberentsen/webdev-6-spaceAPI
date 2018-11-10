@@ -2,10 +2,11 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta property="og:author" content="Ask Hetland Berentsen">
 		<meta property="og:url" content="http://itstud.hiof.no/~askhb/spaceSite/">
-		<meta property="og:img" content="https://images.unsplash.com/photo-1517976487492-5750f3195933?ixlib=rb-0.3.5&s=8853a6215c89a2beb8d669b030495fb5&auto=format&fit=crop&w=1950&q=80">
-		<meta property="og:img:alt" content="Image of the Falcon 9 rocket launching from the Kennedy Space Center">
+		<meta property="og:image" content="https://images.unsplash.com/photo-1517976487492-5750f3195933?ixlib=rb-0.3.5&s=8853a6215c89a2beb8d669b030495fb5&auto=format&fit=crop&w=1950&q=80">
+		<meta property="og:image:alt" content="Image of the Falcon 9 rocket launching from the Kennedy Space Center">
+		<meta property="og:image:width" content="1950">
+		<meta property="og:image:height" content="1300">
 		<meta property="og:title" content="Spacesite 88">
 		<meta property="og:description" content="Statistics and media from SpaceX and NASA">
 		<meta property="og:type" content="website">
@@ -25,14 +26,14 @@
 		<script src="./main.js"></script>
 		<link rel="stylesheet" href="css/main.css">
 	</head>
-	<body data-loading="0">
+	<body>
 		<header id="banner">
 			<h1>Spacesite 88</h1>
 		</header>
 
 		<p id="loading" role="progressbar">
-			<span role="presentation" class="progressbar_content_wrapper">
-				Fetching information from API <span id="loading_animation">0%</span><br/> this shouldn't take long.
+			<span role="presentation" class="progressbar_content_wrapper" id="loading_message">
+				Your browser doesn't seem to support Javascript :(
 			</span>
 		</p>
 		<main></main>

@@ -7,5 +7,7 @@
     background-image: url("../resources/images/loading.jpg");
     @include backdrop( $background-light, 1rem, max-content );
     padding-top: 45vh;
+}
+[data-loading]{
     cursor: wait;
 }

@@ -8,7 +8,6 @@
   max-width: 1000px;
   margin: auto;
   padding-top: 45vh;
-  cursor: wait;
 }
 
 #loading::before {
@@ -23,6 +22,10 @@
   content: "";
   background-attachment: fixed;
   background-repeat: no-repeat;
+  background-position: center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
   background-size: cover;
   z-index: -1;
 }
@@ -34,4 +37,8 @@
   width: max-content;
   background-color: #eeeeee;
   background-color: rgba(238, 238, 238, 0.8);
+}
+
+[data-loading] {
+  cursor: wait;
 }

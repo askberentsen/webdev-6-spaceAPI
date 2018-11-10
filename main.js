@@ -65,6 +65,8 @@ var articles;
 var position = 0;
 
 async function init(){
+    document.getElementById("loading_message").innerHTML = "Fetching information from API <span id=\"loading_animation\">0%</span><br/> this shouldn\'t take long.";
+    document.body.dataset.loading=0;
 
     /* Fetch the requests from json */
     var requests = await fetch("webRequests.json")
