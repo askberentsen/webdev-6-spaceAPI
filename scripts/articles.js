@@ -10,7 +10,6 @@ class DOMGenerator {
         /* Find all values in this.content that matches the regex */
         this.links     = regSearch( this.content, /(?:http|www\.).+/, "values", /\.(?:png|jpg|jpeg|gif)/ );
         this.technical = regSearch( this.content, /earth_distance_km|orbit_type|speed_kph|norad_id|launch_site|rocket_name|landing_vehicle|manufacturer|nationality|payload_type|payload_mass_kg|launch_success/ );
-        console.log( this.technical );
     }
     /* Main method */
     create(){
@@ -78,10 +77,6 @@ class DOMGenerator {
             this.nodes.aside         = document.createElement( "aside"   );
             this.nodes.aside_header = document.createElement( "h3"      );
         }
-        // this.nodes.link_wrapper  = [];
-        // this.nodes.link_names    = [];
-        // this.nodes.l_details     = this.links.length > 0 ? document.createElement( "details" ) : null;
-        // this.nodes.l_summary     = this.links.length > 0 ? document.createElement( "summary" ) : null;
         this.nodes.navigation    = this.types.length > 1 ? document.createElement( "nav"     ) : null;
         this.nodes.sections      = [];
 
@@ -144,8 +139,8 @@ class DOMGenerator {
         this.nodes.footer.id               = this.id + "_footer"             ;
         this.nodes.cite.innerHTML          = "API used: " + this.info.domain ;
         if ( this.nodes.aside ){
-            this.nodes.aside.id                = this.id + "_aside"           ;
-            this.nodes.aside_header.innerHTML  = "Technical details"          ;
+            this.nodes.aside.id                = this.id + "_aside"          ;
+            this.nodes.aside_header.innerHTML  = "Technical details"         ;
         }
         
     }
@@ -190,8 +185,8 @@ class DOMGenerator {
 
             wrapper.appendChild( embed );
 
-            embed.src = url;
-            embed.allowFullscreen = true;
+            embed  .src = url;
+            embed  .allowFullscreen = true;
             embed  .classList.add( "youtube_video"       );
             wrapper.classList.add( "youtube_wrapper"     );
             wrapper.setAttribute ("role", "presentation" );
@@ -220,11 +215,11 @@ class DOMGenerator {
     }
     create_technical(){
         if ( this.technical.length > 0 ){
-            let details = this.create_details( "Statistics:" );
-            let wrapper = document.createElement("div");
-            details.appendChild(wrapper);
-            wrapper.setAttribute("role","presentation");
-            wrapper.classList.add("details_wrapper");
+            let details = this.create_details   ( "Statistics:" );
+            let wrapper = document.createElement( "div"         );
+            details.appendChild  ( wrapper              );
+            wrapper.setAttribute ("role","presentation" );
+            wrapper.classList.add("details_wrapper"     );
 
             for( let entry of this.technical ){
                 let stat;
@@ -232,8 +227,8 @@ class DOMGenerator {
                 if ( entry.value instanceof Object ){
                     switch( entry.property ){
                         case "launch_site":
-                            stat    = document.createElement ( "abbr"         );
-                            value   = entry.value.site_name;  
+                            stat       = document.createElement ( "abbr" );
+                            value      = entry.value.site_name;  
                             stat.title = entry.value.site_name_long;  
                             break;  
                         default:  
@@ -241,24 +236,20 @@ class DOMGenerator {
                     }  
                 }  
                 else {  
-                    stat            = document.createElement ( "span"         );
+                    stat = document.createElement ( "span" );
                 }  
-                  
-                // let stat_wrapper    = document.createElement ( "p"            );
-                let stat_name       = document.createElement ( "span"         );
-                let label = entry.property.replace ( /\_/g, " "     );
-                // details             .appendChild             ( stat_wrapper   );
+
+                let stat_name  = document.createElement ( "span"         );
+                let label = entry.property.replace      ( /\_/g, " "     );
                 wrapper        .appendChild             ( stat_name      );
                 wrapper        .appendChild             ( stat           );
                 
+                stat_name.classList.add                  ( "detail_label" );
+                stat.classList.add                       ( "detail_value" );
                 stat_name.innerHTML = label;
-                // stat_name.classList.add                      ( "stat_label"   );
-                stat_name.classList.add                      ( "detail_label" );
-                // stat_wrapper.classList.add                   ( "detail_entry" );
-                stat.classList.add                           ( "detail_value" );
-                stat.innerHTML      = value                                    ;
-                stat             .setAttribute            ( "aria-label", label    );
-                stat_name             .setAttribute            ( "aria-hidden", "true"    );
+                stat.innerHTML      = value;
+                stat     .setAttribute ( "aria-label", label   );
+                stat_name.setAttribute ( "aria-hidden", "true" );
                 
             }
             return details;
@@ -274,27 +265,20 @@ class DOMGenerator {
 
             for ( let i = 0; i < this.links.length; ++i ){
 
-                let label             = this.links.properties[ i ].replace( /\_/g," " )    ;
-                let stripped_link     = this.links.values[ i ].replace( /https?:\/\/w*\.?/,""  );
-
-                //let link_wrapper      = document.createElement ( "p"                      );
-                let link_name         = document.createElement ( "span"                   );
-                let link_url          = document.createElement ( "a"                      );
-                // details               .appendChild             ( link_wrapper             );
-                wrapper               .appendChild             ( link_name                );
-                wrapper               .appendChild             ( link_url                 );
-
-                link_url.title        = stripped_link.match( /[A-Za-z0-9.-]+(?!.*\|\w*$)/ );
-                link_url.innerHTML    = stripped_link                                      ;
-                link_url.href         = this.links.values[ i ]                             ;
-                link_url              .setAttribute            ( "aria-label", label      );
-                link_url              .classList.add           ( "detail_value"           );
-
+                let label             = this.links.properties[ i ].replace( /\_/g," "          );
+                let stripped_link     = strip_url              ( this.links.values[ i ], true  );
+                let link_name         = document.createElement ( "span"                        );
+                let link_url          = document.createElement ( "a"                           );
+                wrapper               .appendChild             ( link_name                     );
+                wrapper               .appendChild             ( link_url                      );
+                link_url.title        = strip_url              ( this.links.values[ i ], false );
+                link_url.innerHTML    = stripped_link                                           ;
+                link_url.href         = this.links.values[ i ]                                  ;
+                link_url              .setAttribute            ( "aria-label", label           );
+                link_url              .classList.add           ( "detail_value"                );
+                link_name             .setAttribute            ( "aria-hidden", "true"         );
+                link_name             .classList.add           ( "detail_label"                );
                 link_name.innerHTML   = label;
-                link_name             .setAttribute            ( "aria-hidden", "true"    );
-                link_name             .classList.add           ( "detail_label"           );
-                // link_wrapper          .classList.add           ( "article_links"          );
-                // link_wrapper          .classList.add           ( "detail_entry"           );
             }
             return details;
         }
