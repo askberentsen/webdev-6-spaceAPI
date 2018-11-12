@@ -1,0 +1,44 @@
+#loading {
+  display: block;
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  background-image: url("../resources/images/loading.jpg");
+  position: relative;
+  max-width: 1000px;
+  margin: auto;
+  padding-top: 45vh;
+}
+
+#loading::before {
+  /*Funky method of covering background*/
+  max-width: 200vw;
+  width: 200vw;
+  left: -50vw;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  display: block;
+  content: "";
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  z-index: -1;
+}
+
+#loading > * {
+  padding: 1rem;
+  display: block;
+  margin: auto;
+  width: max-content;
+  background-color: #eeeeee;
+  background-color: rgba(238, 238, 238, 0.8);
+}
+
+[data-loading] {
+  cursor: wait;
+}

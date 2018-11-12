@@ -1,8 +1,10 @@
 [
 	{
 		"info": {
-			"domain":"NASA",
-			"type": "normal"
+			"domain": "NASA",
+			"types":["normal"],
+			"title":"Astronomy Picture Of the Day",
+			"id":"nasa_apod"
 		},
 		"cache": "nasa_apod.dat",
 		"url": "https://api.nasa.gov/planetary/apod?api_key=qnUh09n1kUVj0wWImp7gggzvZWEY4hYu7FLj3MSy"
@@ -10,17 +12,9 @@
 	{
 		"info": {
 			"domain": "SpaceX",
-			"type": "library",
-			"id": "upcomming_launch",
-			"sections": [ "next", "all" ]
-		},
-		"cache": "spacex_ships_latest.dat",
-		"url": "https://api.spacexdata.com/v3/launches/upcoming"
-	},
-	{
-		"info": {
-			"domain": "SpaceX",
-			"type": "normal"
+			"types":["normal"],
+			"title":"The Tesla Roadster",
+			"id": "tesla_roadster"
 		},
 		"cache": "roadster.dat",
 		"url": "https://api.spacexdata.com/v3/roadster"
@@ -28,18 +22,11 @@
 	{
 		"info": {
 			"domain": "SpaceX",
-			"type":"normal"
+			"types":["normal"],
+			"title":"Latest launch - SpaceX",
+			"id":"spacex_latest_launch"
 		},
 		"cache": "spacex_launches_latest.dat",
 		"url": "https://api.spacexdata.com/v3/launches/latest"
-	},
-	{
-		"info": {
-			"domain": "SpaceX",
-			"type": "library",
-			"sections": [ "newest", "all" ]
-		},
-		"cache": "spacex_history_latest.dat",
-		"url": "https://api.spacexdata.com/v3/history"
 	}
 ]

@@ -1,0 +1,12 @@
+{
+	"version": 3,
+	"file": "../scss/colors.css",
+	"sources": [
+		"../scss/colors.scss"
+	],
+	"sourcesContent": [
+		"$primary-color-light: #eeeeee;\r\n$secondary-color-light: #dddddd;\r\n$font-light: #000000;\r\n$background-light: #eeeeee;\r\n\r\n$primary-color-dark: #111111;\r\n$secondary-color-dark: #222222;\r\n$font-dark: #ffffff;\r\n$background-dark: #111111;\r\n\r\n@mixin transparent-color( $color, $a ) {\r\n    color: $color;\r\n    color: rgba( $color, $a);\r\n}\r\n@mixin transparent-background-color( $color, $a ) {\r\n    background-color: $color;\r\n    background-color: rgba( $color, $a);\r\n}"
+	],
+	"mappings": "",
+	"names": []
+}

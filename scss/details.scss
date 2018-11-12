@@ -1,0 +1,56 @@
+@import "colors";
+details {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-content: stretch;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 20em;
+    padding: 2px;
+    &[open]{
+        border: 2px dashed #333;
+        margin-bottom: 0.5rem;
+        padding: 0;
+        summary {
+            background-color: #111;
+        }
+    }
+    summary {
+        position: sticky;
+        padding: 1rem;
+        grid-column: 1/-1;
+    }
+    &>.details_wrapper>*{
+        display: block;
+        padding: 0.5rem 1rem;
+
+        &:nth-child(4n+3),
+        &:nth-child(4n+4){
+            @include transparent-background-color( #222, 0.7 );
+        }
+    }
+    .detail_label{
+        padding-bottom: 0;
+        &::after{
+            display: inline;
+            content: ": ";
+        }
+        &::first-letter {
+            text-transform: uppercase;
+        }
+    }
+    .detail_value {
+        padding-top: 0.3rem;
+    }
+    @media only screen and ( min-width: 660px ){
+        &[open]>div{
+            display: grid;
+            grid-template-columns: max-content auto;
+        }
+        &[open]>div .detail_label, &[open]>div .detail_value{
+            padding: 0.5rem;
+        }
+    }
+}
