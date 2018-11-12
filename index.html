@@ -25,6 +25,7 @@
 		<script src="./scripts/articles.js"></script>
 		<script src="./main.js"></script>
 		<link rel="stylesheet" href="css/main.css">
+		<link rel="icon" href="https://images2.imgbox.com/66/d2/oVB1ofaZ_o.png">
 	</head>
 	<body>
 		<header id="banner">
@@ -34,6 +35,9 @@
 		<p id="loading" role="progressbar">
 			<span role="presentation" class="progressbar_content_wrapper" id="loading_message">
 				Your browser doesn't seem to support Javascript :(
+				<script style="display:none" id="js_check">
+					document.getElementById("loading_message").innerHTML = "Fetching information from API <span id=\"loading_animation\">0%</span><br/> this shouldn\'t take long.";
+				</script>
 			</span>
 		</p>
 		<main></main>
@@ -45,8 +49,8 @@
 			<p>NASA APOD api: <a href="https://github.com/nasa/apod-api">github.com/nasa/apod-api</a></p>
 			<p>SpaceX api: <a href="https://github.com/r-spacex/SpaceX-API">github.com/r-spacex/SpaceX-API</a></p>
 
+			<h2>Contact</h2>
 			<address>
-				<h2>Contact</h2>
 				<p>Ask Hetland Berentsen</p>
 				<p>Mail ( school ): <a href="mailto://askhb@hiof.no">askhb@hiof.no</a> </p>
 				<p>Mail ( private ): <a href="mailto://askberentsen@gmail.com">askberentsen@gmail.com</a> </p>
