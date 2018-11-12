@@ -65,9 +65,7 @@ var articles;
 var position = 0;
 
 async function init(){
-    document.getElementById("loading_message").innerHTML = "Fetching information from API <span id=\"loading_animation\">0%</span><br/> this shouldn\'t take long.";
     document.body.dataset.loading=0;
-
     /* Fetch the requests from json */
     var requests = await fetch("webRequests.json")
         .then( response => response.json() )
@@ -88,7 +86,6 @@ async function init(){
     });
 
     articles = await requests.all( load ).then( finish );
-    console.log( articles );
     
     for( let article of articles ){
         main.appendChild( (new DOMGenerator( article )).create() );
