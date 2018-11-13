@@ -53,6 +53,10 @@ details .detail_value {
   padding-top: 0.3rem;
 }
 
+details p {
+  margin: 0;
+}
+
 @media only screen and (min-width: 660px) {
   details[open] > div {
     display: grid;

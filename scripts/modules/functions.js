@@ -112,4 +112,11 @@ class StatArray extends Array{
         }
         return output;
     }
+    get associative() {
+        let output = {};
+        for( let i = 0; i < this.length; ++i ){
+            output[ this[ i ].property ] = this[ i ].value;
+        }
+        return output;
+    }
 }

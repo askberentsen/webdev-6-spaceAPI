@@ -10,7 +10,6 @@ class DOMGenerator {
         /* Find all values in this.content that matches the regex */
         this.links     = regSearch( this.content, /(?:http|www\.).+/, "values", /\.(?:png|jpg|jpeg|gif)/ );
         this.technical = regSearch( this.content, /earth_distance_km|orbit_type|speed_kph|norad_id|launch_site|rocket_name|landing_vehicle|manufacturer|nationality|payload_type|payload_mass_kg|launch_success/ );
-        console.log( this.technical );
     }
     /* Main method */
     create(){
@@ -42,8 +41,11 @@ class DOMGenerator {
     }
     get caption() {
         let count = (this.images.length === 1 ? "Image" : "Images") 
-        let rocket_name = deepGetProperty( this.content, "rocket_name").value;
-        if ( rocket_name ) return count + " of the " + rocket_name + " rocket.";
+        let rocket_name = this.technical.associative.rocket_name;
+        let launch_site = this.technical.associative.launch_site;
+        if ( rocket_name ) { 
+            return count + " of the " + rocket_name + ( launch_site ? " launch at the " + launch_site.site_name_long + "." : " rocket.");
+        }
 
         return count + " courtesy of " + ( this.content.copyright || this.info.domain );
     }
@@ -78,10 +80,6 @@ class DOMGenerator {
             this.nodes.aside         = document.createElement( "aside"   );
             this.nodes.aside_header = document.createElement( "h3"      );
         }
-        // this.nodes.link_wrapper  = [];
-        // this.nodes.link_names    = [];
-        // this.nodes.l_details     = this.links.length > 0 ? document.createElement( "details" ) : null;
-        // this.nodes.l_summary     = this.links.length > 0 ? document.createElement( "summary" ) : null;
         this.nodes.navigation    = this.types.length > 1 ? document.createElement( "nav"     ) : null;
         this.nodes.sections      = [];
 
@@ -113,20 +111,20 @@ class DOMGenerator {
         }
         this.nodes.sections.forEach( section => { this.nodes.article.appendChild( section ) } );
         if ( this.nodes.aside ){
-            this.nodes.article.appendChild ( this.nodes.aside         );
-            this.nodes.aside .appendChild ( this.nodes.aside_header );
+            this.nodes.article.appendChild  ( this.nodes.aside        );
+            this.nodes.aside .appendChild   ( this.nodes.aside_header );
         }
         if ( this.nodes.links     ){
-            this.nodes.aside .appendChild( this.nodes.links );
+            this.nodes.aside.appendChild    ( this.nodes.links      );
         }
         if ( this.nodes.technical ){
-            this.nodes.aside .appendChild( this.nodes.technical      );
+            this.nodes.aside.appendChild    ( this.nodes.technical  );
         }
-        this.nodes.article.appendChild ( this.nodes.footer        );
-        this.nodes.footer .appendChild ( this.nodes.cite          );
+        this.nodes.article.appendChild      ( this.nodes.footer     );
+        this.nodes.footer .appendChild      ( this.nodes.cite       );
         
-        this.nodes.banner.appendChild( this.nodes.title   );
-        this.nodes.banner.appendChild( this.nodes.time    );
+        this.nodes.banner.appendChild       ( this.nodes.title      );
+        this.nodes.banner.appendChild       ( this.nodes.time       );
     }
     
     /* Populate_nodes will populate the nodes with content and data */
@@ -144,8 +142,8 @@ class DOMGenerator {
         this.nodes.footer.id               = this.id + "_footer"             ;
         this.nodes.cite.innerHTML          = "API used: " + this.info.domain ;
         if ( this.nodes.aside ){
-            this.nodes.aside.id                = this.id + "_aside"           ;
-            this.nodes.aside_header.innerHTML  = "Technical details"          ;
+            this.nodes.aside.id                = this.id + "_aside"          ;
+            this.nodes.aside_header.innerHTML  = "Technical details"         ;
         }
         
     }
@@ -190,8 +188,8 @@ class DOMGenerator {
 
             wrapper.appendChild( embed );
 
-            embed.src = url;
-            embed.allowFullscreen = true;
+            embed  .src = url;
+            embed  .allowFullscreen = true;
             embed  .classList.add( "youtube_video"       );
             wrapper.classList.add( "youtube_wrapper"     );
             wrapper.setAttribute ("role", "presentation" );
@@ -220,11 +218,11 @@ class DOMGenerator {
     }
     create_technical(){
         if ( this.technical.length > 0 ){
-            let details = this.create_details( "Statistics:" );
-            let wrapper = document.createElement("div");
-            details.appendChild(wrapper);
-            wrapper.setAttribute("role","presentation");
-            wrapper.classList.add("details_wrapper");
+            let details = this.create_details   ( "Statistics:" );
+            let wrapper = document.createElement( "div"         );
+            details.appendChild  ( wrapper              );
+            wrapper.setAttribute ("role","presentation" );
+            wrapper.classList.add("details_wrapper"     );
 
             for( let entry of this.technical ){
                 let stat;
@@ -232,33 +230,33 @@ class DOMGenerator {
                 if ( entry.value instanceof Object ){
                     switch( entry.property ){
                         case "launch_site":
-                            stat    = document.createElement ( "abbr"         );
-                            value   = entry.value.site_name;  
+                            stat       = document.createElement ( "p" );
+                            value      = entry.value.site_name;  
                             stat.title = entry.value.site_name_long;  
                             break;  
                         default:  
-                            stat = document.createElement( "span" );  
+                            stat = document.createElement( "p" );  
                     }  
                 }  
                 else {  
-                    stat            = document.createElement ( "span"         );
+                    stat = document.createElement ( "p" );
                 }  
-                  
-                // let stat_wrapper    = document.createElement ( "p"            );
-                let stat_name       = document.createElement ( "span"         );
-                let label = entry.property.replace ( /\_/g, " "     );
-                // details             .appendChild             ( stat_wrapper   );
+
+                let stat_name  = document.createElement ( "p"         );
+                let name      = entry.property.replace      ( /\_/g, " "     );
+                let label = ( this.id + "_" + entry.property );
                 wrapper        .appendChild             ( stat_name      );
                 wrapper        .appendChild             ( stat           );
                 
-                stat_name.innerHTML = label;
-                // stat_name.classList.add                      ( "stat_label"   );
-                stat_name.classList.add                      ( "detail_label" );
-                // stat_wrapper.classList.add                   ( "detail_entry" );
-                stat.classList.add                           ( "detail_value" );
-                stat.innerHTML      = value                                    ;
-                stat             .setAttribute            ( "aria-label", label    );
-                stat_name             .setAttribute            ( "aria-hidden", "true"    );
+                stat_name.classList.add                  ( "detail_label" );
+                stat.classList.add                       ( "detail_value" );
+                stat_name.innerHTML = name;
+                stat.innerHTML      = value;
+                stat_name.id = label;
+                // stat_name.setAttribute ( "role", "Rowheader" );
+                // stat     .setAttribute ( "role", "cell"      );
+                stat     .setAttribute ( "tabindex", 0);
+                stat     .setAttribute ( "aria-labelledby", label   );
                 
             }
             return details;
@@ -274,27 +272,25 @@ class DOMGenerator {
 
             for ( let i = 0; i < this.links.length; ++i ){
 
-                let label             = this.links.properties[ i ].replace( /\_/g," " )    ;
-                let stripped_link     = this.links.values[ i ].replace( /https?:\/\/w*\.?/,""  );
-
-                //let link_wrapper      = document.createElement ( "p"                      );
-                let link_name         = document.createElement ( "span"                   );
-                let link_url          = document.createElement ( "a"                      );
-                // details               .appendChild             ( link_wrapper             );
-                wrapper               .appendChild             ( link_name                );
-                wrapper               .appendChild             ( link_url                 );
-
-                link_url.title        = stripped_link.match( /[A-Za-z0-9.-]+(?!.*\|\w*$)/ );
-                link_url.innerHTML    = stripped_link                                      ;
-                link_url.href         = this.links.values[ i ]                             ;
-                link_url              .setAttribute            ( "aria-label", label      );
-                link_url              .classList.add           ( "detail_value"           );
-
-                link_name.innerHTML   = label;
-                link_name             .setAttribute            ( "aria-hidden", "true"    );
-                link_name             .classList.add           ( "detail_label"           );
-                // link_wrapper          .classList.add           ( "article_links"          );
-                // link_wrapper          .classList.add           ( "detail_entry"           );
+                let name              = this.links.properties[ i ].replace( /\_/g," "          );
+                let label             = ( this.id + "_" + this.links[ i ].property );
+                let stripped_link     = strip_url              ( this.links.values[ i ], true  );
+                let link_name         = document.createElement ( "p"                        );
+                let link_url          = document.createElement ( "a"                           );
+                wrapper               .appendChild             ( link_name                     );
+                wrapper               .appendChild             ( link_url                      );
+                link_url.title        = strip_url              ( this.links.values[ i ], false );
+                link_url.innerHTML    = stripped_link                                           ;
+                link_url.href         = this.links.values[ i ]                                  ;
+                //link_url              .setAttribute            ( "aria-label", label           );
+                link_url              .classList.add           ( "detail_value"                );
+                link_name             .classList.add           ( "detail_label"                );
+                link_name.innerHTML   = name;
+                
+                // link_name.setAttribute ( "role", "Rowheader" );
+                // link_url .setAttribute ( "role", "cell"      );
+                link_name.id = label;
+                link_url     .setAttribute ( "aria-labelledby", label   );
             }
             return details;
         }
